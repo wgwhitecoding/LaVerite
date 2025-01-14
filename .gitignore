@@ -1,0 +1,12 @@
+# Ignore SQLite database
+db.sqlite3
+
+# Ignore migration files (optional, only if you want to exclude old migrations)
+*.pyc
+__pycache__/
+
+# Ignore uploaded media files (if you handle user uploads)
+media/
+
+# Ignore environment files (if you use one for secret keys or database settings)
+.env
