@@ -4,61 +4,101 @@
 {% block title %}Home - T-Shirt Customisation{% endblock %}
 
 {% block content %}
-<!-- Side Panel (Bootstrap column, but in flex row) -->
-<div class="bg-light p-3" style="width: 250px; border-right: 1px solid #ccc;">
-  <h5>Choose Color</h5>
-  <!-- 10 Preset Colors -->
+<!-- Side panel: fixed width, vertical scrolling if needed. -->
+<div class="bg-light p-3" style="width: 300px; border-right: 1px solid #ccc; overflow-y: auto;">
+  <h5>Choose Product</h5>
+  <!-- 4 small squares for T-shirt, Baggy, Hoodie, Jumper -->
+  <div class="d-flex mb-3">
+    <div class="me-2">
+      <img
+        src=""
+        alt="T-Shirt"
+        class="product-btn border"
+        data-model="Tshirt.glb"
+      />
+    </div>
+    <div class="me-2">
+      <img
+        src="https://via.placeholder.com/60x60?text=Baggy"
+        alt="Baggy T-Shirt"
+        class="product-btn border"
+        data-model="Baggy.glb"
+      />
+    </div>
+    <div class="me-2">
+      <img
+        src="https://via.placeholder.com/60x60?text=Hoodie"
+        alt="Hoodie"
+        class="product-btn border"
+        data-model="Hoodie.glb"
+      />
+    </div>
+    <div>
+      <img
+        src="https://via.placeholder.com/60x60?text=Jumper"
+        alt="Jumper"
+        class="product-btn border"
+        data-model="Jumper.glb"
+      />
+    </div>
+  </div>
+
+  <h5>Pick a Color</h5>
   <div class="mb-2">
     <button class="btn color-btn" style="background-color: #ffffff;" data-color="#ffffff">White</button>
     <button class="btn color-btn" style="background-color: #000000;" data-color="#000000">Black</button>
     <button class="btn color-btn" style="background-color: #ff0000;" data-color="#ff0000">Red</button>
     <button class="btn color-btn" style="background-color: #00ff00;" data-color="#00ff00">Green</button>
     <button class="btn color-btn" style="background-color: #0000ff;" data-color="#0000ff">Blue</button>
-    <button class="btn color-btn" style="background-color: #ffff00;" data-color="#ffff00">Yellow</button>
-    <button class="btn color-btn" style="background-color: #ffa500;" data-color="#ffa500">Orange</button>
-    <button class="btn color-btn" style="background-color: #ff00ff;" data-color="#ff00ff">Magenta</button>
-    <button class="btn color-btn" style="background-color: #00ffff;" data-color="#00ffff">Cyan</button>
-    <button class="btn color-btn" style="background-color: #808080;" data-color="#808080">Gray</button>
+    <!-- add more as needed -->
   </div>
-  <!-- Custom Color Picker -->
   <div class="mb-3">
     <label for="customColor" class="form-label">Custom Color:</label>
     <input type="color" id="customColor" class="form-control form-control-color" value="#ffffff">
   </div>
 
   <hr>
-
-  <h5>Upload Print</h5>
-  <p class="small text-muted">Upload an image to place on the T-shirt.</p>
+  <h5>Upload Image</h5>
+  <p class="small text-muted">Pick an image to place on your product as a sticker.</p>
   <input type="file" id="uploadImage" accept="image/*" class="form-control mb-2">
 
   <hr>
+  <h5>Add Text</h5>
+  <label for="textInput" class="form-label">Enter Text:</label>
+  <input type="text" id="textInput" class="form-control mb-2" />
+  <button id="addTextBtn" class="btn btn-secondary btn-sm">Add Text</button>
 
+  <hr>
   <p class="small text-muted">
-    Use mouse to rotate T-shirt.<br>
-    Scroll to zoom, right-click to pan.
+    - Use mouse to rotate the product<br>
+    - Scroll to zoom<br>
+    - Press W/E/R to move/rotate/scale the sticker or text<br>
+    - Right-click = pan (if not disabled)
   </p>
 </div>
 
-<!-- The Canvas (fills the rest of the space) -->
-<div style="flex: 1; position: relative;">
-  <canvas 
-    id="tshirtCanvas" 
-    style="width: 100%; height: 100%; display: block; background-color: #f5f5f5;">
-  </canvas>
+<!-- The main canvas area (flex:1 so it fills remaining space) -->
+<div style="flex:1; position: relative;">
+  <canvas
+    id="tshirtCanvas"
+    style="width: 100%; height: 100%; background-color: #f5f5f5;"
+  ></canvas>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Three.js, GLTFLoader, OrbitControls, TransformControls -->
+<!-- Three.js + loaders + controls -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/TransformControls.js"></script>
 
-<!-- Our custom T-Shirt logic -->
+<!-- Our custom script -->
 <script src="{% static 'js/tshirt.js' %}"></script>
 {% endblock %}
+
+
+
 
 
 

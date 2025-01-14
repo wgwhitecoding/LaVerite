@@ -1,18 +1,20 @@
+// static/js/tshirt.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    // === 1. Get DOM Elements ===
+    // =============== 1) DOM Elements ===============
     const canvas = document.getElementById('tshirtCanvas');
+  
+    const productBtns = document.querySelectorAll('.product-btn');
     const colorBtns = document.querySelectorAll('.color-btn');
     const customColorInput = document.getElementById('customColor');
     const uploadImageInput = document.getElementById('uploadImage');
+    const textInput = document.getElementById('textInput');
+    const addTextBtn = document.getElementById('addTextBtn');
   
-    // === 2. Set up Three.js renderer ===
-    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    function resizeRenderer() {
-      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    }
-    resizeRenderer();
+    // =============== 2) Three.js Essentials ===============
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   
-    // === 3. Scene & Camera ===
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf5f5f5);
   
@@ -22,170 +24,241 @@ document.addEventListener('DOMContentLoaded', () => {
       0.1,
       1000
     );
-    // Put camera fairly close
-    camera.position.set(0, 1.5, 3);
+    // We'll position the camera after the model loads
   
-    // === 4. OrbitControls for rotating/zooming the T-shirt ===
     const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
     orbitControls.enableDamping = true;
     orbitControls.dampingFactor = 0.07;
-    orbitControls.target.set(0, 1, 0); // Aim around chest height
-    orbitControls.update();
   
-    // === 5. Basic Lighting ===
+    // Lights
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
     scene.add(ambientLight);
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
     dirLight.position.set(5, 10, 5);
     scene.add(dirLight);
   
-    // === 6. Load T-Shirt Model ===
-    const loader = new THREE.GLTFLoader();
-    let tshirtMesh = null; // We'll store reference to the T-shirt mesh or scene
-    loader.load(
-      '/static/models/Tshirt.glb',
-      (gltf) => {
-        tshirtMesh = gltf.scene;
-        scene.add(tshirtMesh);
+    // =============== 3) Variables for the Model ===============
+    let currentModelName = 'Tshirt.glb';  // default product
+    let productMesh = null;              // loaded GLTF scene
   
-        // OPTIONAL: Center the T-shirt
-        const bbox = new THREE.Box3().setFromObject(tshirtMesh);
-        const center = bbox.getCenter(new THREE.Vector3());
-        tshirtMesh.position.x -= center.x;
-        tshirtMesh.position.y -= center.y;
-        tshirtMesh.position.z -= center.z;
+    // =============== 4) Load Model Function ===============
+    const gltfLoader = new THREE.GLTFLoader();
   
-        // If you want to scale it bigger or smaller, do so here:
-        // const size = bbox.getSize(new THREE.Vector3());
-        // const maxDim = Math.max(size.x, size.y, size.z);
-        // const scaleFactor = 2 / maxDim;
-        // tshirtMesh.scale.set(scaleFactor, scaleFactor, scaleFactor);
-  
-        console.log('T-Shirt loaded!');
-      },
-      undefined,
-      (err) => console.error('Error loading T-shirt:', err)
-    );
-  
-    // === 7. Material Handling: We'll make a single material we can recolor. ===
-    // If the T-shirt model has multiple materials, you might need to set them all.
-    // We'll set a "default" color and override once it's loaded.
-  
-    // We'll store the last color chosen
-    let currentColor = '#ffffff';
-  
-    function setTshirtColor(hexColor) {
-      currentColor = hexColor;
-      if (tshirtMesh) {
-        tshirtMesh.traverse((node) => {
-          if (node.isMesh) {
-            // Ensure node.material is a standard or basic material
-            if (!node.material || !('color' in node.material)) return;
-            node.material.color.set(hexColor);
-          }
-        });
+    function loadModel(modelName) {
+      // If there's an existing mesh loaded, remove it first
+      if (productMesh) {
+        scene.remove(productMesh);
+        productMesh = null;
       }
+  
+      // Construct path like '/static/models/Tshirt.glb', etc.
+      const modelPath = `/static/models/${modelName}`;
+  
+      gltfLoader.load(
+        modelPath,
+        (gltf) => {
+          productMesh = gltf.scene;
+          scene.add(productMesh);
+  
+          // Scale it up
+          productMesh.scale.set(15, 15, 15);
+  
+          // Center it
+          const bbox = new THREE.Box3().setFromObject(productMesh);
+          const center = bbox.getCenter(new THREE.Vector3());
+          productMesh.position.x -= center.x;
+          productMesh.position.y -= center.y;
+          productMesh.position.z -= center.z;
+  
+          // Recalc bounding sphere to limit orbit
+          bbox.setFromObject(productMesh);
+          const sphere = new THREE.Sphere();
+          bbox.getBoundingSphere(sphere);
+  
+          // Position camera behind it
+          camera.position.set(
+            sphere.center.x,
+            sphere.center.y,
+            sphere.center.z + sphere.radius * 2
+          );
+          orbitControls.target.copy(sphere.center);
+          orbitControls.update();
+  
+          orbitControls.minDistance = sphere.radius * 0.8;
+          orbitControls.maxDistance = sphere.radius * 5;
+  
+          // Force color if user has already chosen one
+          if (currentColor) {
+            setProductColor(currentColor);
+          }
+  
+          console.log(`${modelName} loaded!`);
+        },
+        undefined,
+        (err) => {
+          console.error(`Error loading ${modelName}:`, err);
+        }
+      );
     }
   
-    // === 8. Preset Color Buttons ===
-    colorBtns.forEach((btn) => {
-      btn.addEventListener('click', (e) => {
-        const hex = e.target.getAttribute('data-color');
-        setTshirtColor(hex);
+    // Initial load (default T-shirt)
+    loadModel(currentModelName);
+  
+    // =============== 5) Switch Model on Product Button Click ===============
+    productBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const chosenModel = btn.getAttribute('data-model');
+        currentModelName = chosenModel;
+        loadModel(currentModelName);
       });
     });
   
-    // === 9. Custom Color Picker ===
-    customColorInput.addEventListener('input', (e) => {
-      setTshirtColor(e.target.value);
+    // =============== 6) Color Changing ===============
+    let currentColor = '#ffffff';
+    function setProductColor(hex) {
+      currentColor = hex;
+      if (!productMesh) return;
+  
+      // Traverse all sub-meshes
+      productMesh.traverse((node) => {
+        if (node.isMesh && node.material && node.material.color) {
+          node.material.wireframe = false;  // ensure no geometry lines
+          node.material.color.set(hex);
+        }
+      });
+    }
+  
+    colorBtns.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const chosenColor = e.target.getAttribute('data-color');
+        setProductColor(chosenColor);
+      });
     });
   
-    // === 10. Uploading a Print (Image) ===
-    // We'll create a plane with the image as texture and let user place it with TransformControls.
-    let transformControls; 
-    let stickerMesh = null;
+    customColorInput.addEventListener('input', (e) => {
+      setProductColor(e.target.value);
+    });
   
+    // =============== 7) TransformControls for Stickers/Text ===============
+    let transformControls = null;
+    function ensureTransformControls() {
+      if (!transformControls) {
+        transformControls = new THREE.TransformControls(camera, renderer.domElement);
+        transformControls.addEventListener('change', renderScene);
+        transformControls.setMode('translate');  // default is move
+        scene.add(transformControls);
+      }
+    }
+  
+    // =============== 8) Upload Image => Sticker Plane ===============
     uploadImageInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
   
       const reader = new FileReader();
-      reader.onload = function(loadEvent) {
-        const imgUrl = loadEvent.target.result;
-  
-        // Create texture from the uploaded image
+      reader.onload = (evt) => {
+        const imgUrl = evt.target.result;
         const texture = new THREE.TextureLoader().load(imgUrl);
         texture.minFilter = THREE.LinearFilter;
         texture.magFilter = THREE.LinearFilter;
   
-        // If we already have a sticker, remove it first
-        if (stickerMesh) {
-          scene.remove(stickerMesh);
-          transformControls.detach(stickerMesh);
-          stickerMesh = null;
-        }
-  
-        // Create a plane geometry for the sticker
-        const stickerGeom = new THREE.PlaneGeometry(0.5, 0.5); 
+        // Create a small plane with the image
+        const stickerGeom = new THREE.PlaneGeometry(0.5, 0.5);
         const stickerMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
-        stickerMesh = new THREE.Mesh(stickerGeom, stickerMat);
+        const stickerMesh = new THREE.Mesh(stickerGeom, stickerMat);
   
-        // Put it in front of the T-shirt
-        stickerMesh.position.set(0, 1, 0.2);
+        // Place it in front of the product
+        stickerMesh.position.set(0, 1, 0.3);
         scene.add(stickerMesh);
   
-        // Add transform controls so user can move/rotate the sticker
-        if (!transformControls) {
-          transformControls = new THREE.TransformControls(camera, renderer.domElement);
-          transformControls.addEventListener('change', render);
-          // By default, let's allow translation + rotation, but not scale
-          transformControls.setMode('translate'); 
-          scene.add(transformControls);
-        }
+        // Enable transform controls
+        ensureTransformControls();
         transformControls.attach(stickerMesh);
-        
-        console.log("Sticker placed on T-shirt!");
+  
+        console.log("Sticker placed!");
       };
       reader.readAsDataURL(file);
     });
   
-    // === 11. TransformControls config ===
-    // (We can add some event listeners for key presses to switch between
-    // translate/rotate/scale if we want.)
-    window.addEventListener('keydown', (event) => {
+    // =============== 9) Add Text as a Plane ===============
+    addTextBtn.addEventListener('click', () => {
+      const textValue = textInput.value.trim();
+      if (!textValue) return;
+  
+      // Create an offscreen canvas to draw the text
+      const textCanvas = document.createElement('canvas');
+      textCanvas.width = 512;
+      textCanvas.height = 256;
+  
+      const ctx = textCanvas.getContext('2d');
+      // Clear background (transparent)
+      ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+  
+      ctx.fillStyle = '#000000';
+      ctx.font = '50px sans-serif';
+      const metrics = ctx.measureText(textValue);
+      const textX = (textCanvas.width - metrics.width) / 2;
+      const textY = textCanvas.height / 2 + 15;
+      ctx.fillText(textValue, textX, textY);
+  
+      // Create texture from that canvas
+      const textTexture = new THREE.Texture(textCanvas);
+      textTexture.needsUpdate = true;
+  
+      const textGeom = new THREE.PlaneGeometry(1.2, 0.6);
+      const textMat = new THREE.MeshBasicMaterial({ map: textTexture, transparent: true });
+      const textMesh = new THREE.Mesh(textGeom, textMat);
+  
+      // Position it in front
+      textMesh.position.set(0, 1, 0.3);
+      scene.add(textMesh);
+  
+      // Attach transform controls
+      ensureTransformControls();
+      transformControls.attach(textMesh);
+  
+      console.log("Text added:", textValue);
+    });
+  
+    // =============== 10) Keyboard Shortcuts for TransformControls ===============
+    window.addEventListener('keydown', (e) => {
       if (!transformControls) return;
-      switch (event.key) {
-        case 'w': // W -> translate
-          transformControls.setMode('translate');
+      switch (e.key.toLowerCase()) {
+        case 'w':
+          transformControls.setMode('translate'); // move
           break;
-        case 'e': // E -> rotate
-          transformControls.setMode('rotate');
+        case 'e':
+          transformControls.setMode('rotate');    // rotate
           break;
-        case 'r': // R -> scale
-          transformControls.setMode('scale');
+        case 'r':
+          transformControls.setMode('scale');     // scale
           break;
       }
     });
   
-    // === 12. Handle Window Resizing ===
+    // =============== 11) Resize Handling ===============
     window.addEventListener('resize', () => {
       camera.aspect = canvas.clientWidth / canvas.clientHeight;
       camera.updateProjectionMatrix();
-      resizeRenderer();
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     });
   
-    // === 13. Animation / Render Loop ===
+    // =============== 12) Animation Loop ===============
     function animate() {
       requestAnimationFrame(animate);
       orbitControls.update();
-      render();
+      renderScene();
     }
   
-    function render() {
+    function renderScene() {
       renderer.render(scene, camera);
     }
+  
     animate();
   });
+  
+  
+  
   
   
   

@@ -3,17 +3,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>{% block title %}LaVérité{% endblock %}</title>
+
   {% bootstrap_css %}
-  
-  <!-- Any global styling or CSS can go here -->
+
   <style>
     html, body {
       margin: 0; 
       padding: 0; 
       width: 100%; 
       height: 100%;
+      overflow: hidden; /* no scrollbars */
     }
     body {
       display: flex;
@@ -24,7 +25,9 @@
     }
     main#mainContent {
       flex: 1 1 auto;
-      display: flex; /* so we can have a panel + canvas side by side */
+      display: flex; /* side panel + canvas horizontally */
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -38,7 +41,7 @@
     </div>
   </nav>
 
-  <main id="mainContent" class="container-fluid p-0">
+  <main id="mainContent">
     {% block content %}
     {% endblock %}
   </main>
