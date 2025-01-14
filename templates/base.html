@@ -1,53 +1,50 @@
 {% load django_bootstrap5 %}
-
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>{% block title %}LaVérité{% endblock %}</title>
-
+  
+  <!-- Bootstrap CSS from django_bootstrap5 -->
   {% bootstrap_css %}
+  
+  <!-- Our main CSS for layout (styles.css) -->
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  integrity="sha512-..."
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <style>
-    html, body {
-      margin: 0; 
-      padding: 0; 
-      width: 100%; 
-      height: 100%;
-      overflow: hidden; /* no scrollbars */
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    nav.navbar {
-      flex: 0 0 auto;
-    }
-    main#mainContent {
-      flex: 1 1 auto;
-      display: flex; /* side panel + canvas horizontally */
-      width: 100%;
-      height: 100%;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-  <nav class="navbar navbar-dark bg-dark">
-    <a class="navbar-brand ms-3" href="/">LaVérité</a>
-    <div class="d-flex">
-      <a href="#" class="nav-link text-light">Login</a>
-      <a href="#" class="nav-link text-light">Cart</a>
-      <a href="#" class="nav-link text-light">About</a>
+
+  <!-- Navbar at top -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+    <a class="navbar-brand" href="/">LaVérité</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="navbarNav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a href="#" class="nav-link">Login</a></li>
+        <li class="nav-item"><a href="#" class="nav-link">Cart</a></li>
+        <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+      </ul>
     </div>
   </nav>
 
+  <!-- Main area (flex container) -->
   <main id="mainContent">
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
   </main>
 
+  <!-- Bootstrap JS from django_bootstrap5 -->
   {% bootstrap_javascript %}
-  {% block scripts %}
-  {% endblock %}
+  {% block scripts %}{% endblock %}
 </body>
 </html>
+
+
+
+

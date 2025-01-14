@@ -4,108 +4,116 @@
 {% block title %}Home - T-Shirt Customisation{% endblock %}
 
 {% block content %}
-<!-- Side panel: fixed width, vertical scrolling if needed. -->
-<div class="bg-light p-3" style="width: 300px; border-right: 1px solid #ccc; overflow-y: auto;">
-  <h5>Choose Product</h5>
-  <!-- 4 small squares for T-shirt, Baggy, Hoodie, Jumper -->
-  <div class="d-flex mb-3">
-    <div class="me-2">
-      <img
-        src=""
-        alt="T-Shirt"
-        class="product-btn border"
-        data-model="Tshirt.glb"
-      />
-    </div>
-    <div class="me-2">
-      <img
-        src="https://via.placeholder.com/60x60?text=Baggy"
-        alt="Baggy T-Shirt"
-        class="product-btn border"
-        data-model="Baggy.glb"
-      />
-    </div>
-    <div class="me-2">
-      <img
-        src="https://via.placeholder.com/60x60?text=Hoodie"
-        alt="Hoodie"
-        class="product-btn border"
-        data-model="Hoodie.glb"
-      />
-    </div>
-    <div>
-      <img
-        src="https://via.placeholder.com/60x60?text=Jumper"
-        alt="Jumper"
-        class="product-btn border"
-        data-model="Jumper.glb"
-      />
-    </div>
+<!-- Side Panel (same structure, but with new classes) -->
+<div class="side-panel classy-panel p-3 shadow-sm me-3">
+  <h4 class="mb-3">
+    <i class="fas fa-tshirt me-2"></i>Pick Product
+  </h4>
+  <div class="product-thumbnails-container d-flex flex-wrap gap-2 mb-4">
+    <img src="/static/image"
+         class="product-btn"
+         data-model="Tshirt.glb"
+         alt="T-Shirt">
+    <img src="https://via.placeholder.com/60x60?text=Baggy"
+         class="product-btn"
+         data-model="Baggy.glb"
+         alt="Baggy">
+    <img src="https://via.placeholder.com/60x60?text=Hoodie"
+         class="product-btn"
+         data-model="Hoodie.glb"
+         alt="Hoodie">
+    <img src="https://via.placeholder.com/60x60?text=Jumper"
+         class="product-btn"
+         data-model="Jumper.glb"
+         alt="Jumper">
   </div>
 
-  <h5>Pick a Color</h5>
-  <div class="mb-2">
-    <button class="btn color-btn" style="background-color: #ffffff;" data-color="#ffffff">White</button>
-    <button class="btn color-btn" style="background-color: #000000;" data-color="#000000">Black</button>
-    <button class="btn color-btn" style="background-color: #ff0000;" data-color="#ff0000">Red</button>
-    <button class="btn color-btn" style="background-color: #00ff00;" data-color="#00ff00">Green</button>
-    <button class="btn color-btn" style="background-color: #0000ff;" data-color="#0000ff">Blue</button>
-    <!-- add more as needed -->
+  <h4 class="mb-3">
+    <i class="fas fa-palette me-2"></i>Color
+  </h4>
+  <!-- 10 Colors in two rows of 5 (if you wish).
+       For now, we'll just show 5 from your code plus a second row. -->
+  <div class="row row-cols-5 g-2 mb-3">
+    <!-- First row (5 from your snippet) -->
+    <div class="col">
+      <button class="color-btn" data-color="#ffffff" style="background-color:#ffffff;">White</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#000000" style="background-color:#000000;">Black</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#ff0000" style="background-color:#ff0000;">Red</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#00ff00" style="background-color:#00ff00;">Green</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#0000ff" style="background-color:#0000ff;">Blue</button>
+    </div>
+    <!-- Second row (5 new colors) -->
+    <div class="col">
+      <button class="color-btn" data-color="#ff9900" style="background-color:#ff9900;">Orange</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#ff00ff" style="background-color:#ff00ff;">Magenta</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#00ffff" style="background-color:#00ffff;">Cyan</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#808080" style="background-color:#808080;">Gray</button>
+    </div>
+    <div class="col">
+      <button class="color-btn" data-color="#ffaec9" style="background-color:#ffaec9;">Pink</button>
+    </div>
   </div>
-  <div class="mb-3">
-    <label for="customColor" class="form-label">Custom Color:</label>
-    <input type="color" id="customColor" class="form-control form-control-color" value="#ffffff">
-  </div>
+  <label for="customColor" class="form-label">Custom Color:</label>
+  <input type="color" id="customColor" value="#ffffff" class="form-control form-control-color mb-4">
+
+  <h4 class="mb-3">
+    <i class="fas fa-upload me-2"></i>Decal (Image)
+  </h4>
+  <p class="small mb-2">1) Upload an image<br>2) Click on the 3D product to place</p>
+  <input type="file" id="uploadImage" accept="image/*" class="form-control mb-4">
+
+  <h4 class="mb-3">
+    <i class="fas fa-font me-2"></i>Add Text
+  </h4>
+  <input type="text" id="textValue" placeholder="Enter text" class="form-control mb-2">
+  <input type="color" id="textColor" value="#000000" class="form-control form-control-color mb-2">
+  <button id="addTextBtn" class="btn btn-secondary btn-sm mb-4">Add Text</button>
 
   <hr>
-  <h5>Upload Image</h5>
-  <p class="small text-muted">Pick an image to place on your product as a sticker.</p>
-  <input type="file" id="uploadImage" accept="image/*" class="form-control mb-2">
+  <h5 class="mb-2">
+    <i class="fas fa-layer-group me-2"></i>Items / Layers
+  </h5>
+  <div id="itemsList" class="border p-2 mb-4" style="height:120px; overflow-y:auto;"></div>
 
   <hr>
-  <h5>Add Text</h5>
-  <label for="textInput" class="form-label">Enter Text:</label>
-  <input type="text" id="textInput" class="form-control mb-2" />
-  <button id="addTextBtn" class="btn btn-secondary btn-sm">Add Text</button>
-
-  <hr>
-  <p class="small text-muted">
-    - Use mouse to rotate the product<br>
-    - Scroll to zoom<br>
-    - Press W/E/R to move/rotate/scale the sticker or text<br>
-    - Right-click = pan (if not disabled)
-  </p>
+  <button id="saveDesignBtn" class="btn btn-primary w-100">
+    <i class="fas fa-save me-2"></i>Save Design
+  </button>
 </div>
 
-<!-- The main canvas area (flex:1 so it fills remaining space) -->
-<div style="flex:1; position: relative;">
-  <canvas
-    id="tshirtCanvas"
-    style="width: 100%; height: 100%; background-color: #f5f5f5;"
-  ></canvas>
+<!-- The 3D canvas container (unchanged) -->
+<div class="canvas-container">
+  <canvas id="tshirtCanvas"></canvas>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<!-- Three.js + loaders + controls -->
+<!-- Make sure Font Awesome is loaded in your base.html or via CDN:
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" ... />
+-->
+<!-- Three.js + DecalGeometry + OrbitControls (unchanged) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/TransformControls.js"></script>
+<script src="{% static 'js/DecalGeometry.js' %}"></script>
 
-<!-- Our custom script -->
+<!-- The same 'tshirt.js' you had originally. Nothing changed here. -->
 <script src="{% static 'js/tshirt.js' %}"></script>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-
 
 
 
