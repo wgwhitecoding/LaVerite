@@ -1,10 +1,71 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>LaVérité T-Shirt Customiser</title>
-</head>
-<body>
-    <h1>Welcome to LaVérité</h1>
-    <p>Customise your T-shirt in 3D!</p>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - T-Shirt Customisation{% endblock %}
+
+{% block content %}
+<!-- Side Panel (Bootstrap column, but in flex row) -->
+<div class="bg-light p-3" style="width: 250px; border-right: 1px solid #ccc;">
+  <h5>Choose Color</h5>
+  <!-- 10 Preset Colors -->
+  <div class="mb-2">
+    <button class="btn color-btn" style="background-color: #ffffff;" data-color="#ffffff">White</button>
+    <button class="btn color-btn" style="background-color: #000000;" data-color="#000000">Black</button>
+    <button class="btn color-btn" style="background-color: #ff0000;" data-color="#ff0000">Red</button>
+    <button class="btn color-btn" style="background-color: #00ff00;" data-color="#00ff00">Green</button>
+    <button class="btn color-btn" style="background-color: #0000ff;" data-color="#0000ff">Blue</button>
+    <button class="btn color-btn" style="background-color: #ffff00;" data-color="#ffff00">Yellow</button>
+    <button class="btn color-btn" style="background-color: #ffa500;" data-color="#ffa500">Orange</button>
+    <button class="btn color-btn" style="background-color: #ff00ff;" data-color="#ff00ff">Magenta</button>
+    <button class="btn color-btn" style="background-color: #00ffff;" data-color="#00ffff">Cyan</button>
+    <button class="btn color-btn" style="background-color: #808080;" data-color="#808080">Gray</button>
+  </div>
+  <!-- Custom Color Picker -->
+  <div class="mb-3">
+    <label for="customColor" class="form-label">Custom Color:</label>
+    <input type="color" id="customColor" class="form-control form-control-color" value="#ffffff">
+  </div>
+
+  <hr>
+
+  <h5>Upload Print</h5>
+  <p class="small text-muted">Upload an image to place on the T-shirt.</p>
+  <input type="file" id="uploadImage" accept="image/*" class="form-control mb-2">
+
+  <hr>
+
+  <p class="small text-muted">
+    Use mouse to rotate T-shirt.<br>
+    Scroll to zoom, right-click to pan.
+  </p>
+</div>
+
+<!-- The Canvas (fills the rest of the space) -->
+<div style="flex: 1; position: relative;">
+  <canvas 
+    id="tshirtCanvas" 
+    style="width: 100%; height: 100%; display: block; background-color: #f5f5f5;">
+  </canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Three.js, GLTFLoader, OrbitControls, TransformControls -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/TransformControls.js"></script>
+
+<!-- Our custom T-Shirt logic -->
+<script src="{% static 'js/tshirt.js' %}"></script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

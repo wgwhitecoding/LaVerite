@@ -1,0 +1,45 @@
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}LaVérité{% endblock %}</title>
+  
+  {% bootstrap_css %}
+
+  <!-- Any global CSS you want on ALL pages can be included here -->
+
+</head>
+<body>
+  <!-- Common navbar across the site -->
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="navbar-brand ms-3" href="/">LaVérité</a>
+    <div class="d-flex">
+      <a href="#" class="nav-link text-light">Login</a>
+      <a href="#" class="nav-link text-light">Cart</a>
+      <a href="#" class="nav-link text-light">About</a>
+    </div>
+  </nav>
+  
+  <!-- Main content area -->
+  <main class="container my-4">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  {% bootstrap_javascript %}
+  <!-- A place for page-specific scripts -->
+  {% block scripts %}
+  {% endblock %}
+</body>
+</html>
+
+
+
+
+
+
+
+
+
