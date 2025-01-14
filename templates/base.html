@@ -3,16 +3,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>{% block title %}LaVérité{% endblock %}</title>
-  
   {% bootstrap_css %}
-
-  <!-- Any global CSS you want on ALL pages can be included here -->
-
+  
+  <!-- Any global styling or CSS can go here -->
+  <style>
+    html, body {
+      margin: 0; 
+      padding: 0; 
+      width: 100%; 
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    nav.navbar {
+      flex: 0 0 auto;
+    }
+    main#mainContent {
+      flex: 1 1 auto;
+      display: flex; /* so we can have a panel + canvas side by side */
+    }
+  </style>
 </head>
 <body>
-  <!-- Common navbar across the site -->
   <nav class="navbar navbar-dark bg-dark">
     <a class="navbar-brand ms-3" href="/">LaVérité</a>
     <div class="d-flex">
@@ -21,25 +37,14 @@
       <a href="#" class="nav-link text-light">About</a>
     </div>
   </nav>
-  
-  <!-- Main content area -->
-  <main class="container my-4">
+
+  <main id="mainContent" class="container-fluid p-0">
     {% block content %}
     {% endblock %}
   </main>
 
   {% bootstrap_javascript %}
-  <!-- A place for page-specific scripts -->
   {% block scripts %}
   {% endblock %}
 </body>
 </html>
-
-
-
-
-
-
-
-
-
