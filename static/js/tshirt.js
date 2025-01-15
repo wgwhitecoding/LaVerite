@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     0.1,
     1000
   );
-  camera.position.set(0, 1, 3); // Initial position
+  camera.position.set(0, 1, 5); // Adjusted position for better visibility
 
   const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
   orbitControls.enableDamping = true;
@@ -194,8 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(modelName, 'loaded!');
       },
-      undefined,
-      (err) => console.error('Error loading', modelName, err)
+      (xhr) => {
+        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+      },
+      (err) => {
+        console.error('Error loading', modelName, err);
+        alert('Failed to load the model. Please check the console for more details.');
+      }
     );
   }
 
@@ -207,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     decalsArray.forEach(decal => {
       if (scene.children.includes(decal.mesh)) {
         scene.remove(decal.mesh);
+        disposeMesh(decal.mesh);
       }
     });
     decalsArray = [];
@@ -215,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     textArray.forEach(text => {
       if (scene.children.includes(text.mesh)) {
         scene.remove(text.mesh);
+        disposeMesh(text.mesh);
       }
     });
     textArray = [];
@@ -222,6 +229,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Clear layers list
     while (itemsList.firstChild) {
       itemsList.removeChild(itemsList.firstChild);
+    }
+  }
+
+  /**
+   * Disposes of mesh geometry and materials to free up memory.
+   * @param {THREE.Mesh} mesh - The mesh to dispose.
+   */
+  function disposeMesh(mesh) {
+    if (mesh.geometry) mesh.geometry.dispose();
+    if (mesh.material) {
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach(mat => mat.dispose());
+      } else {
+        mesh.material.dispose();
+      }
     }
   }
 
@@ -288,6 +310,52 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============= 6) Decal Upload and Placement =============
   let decalsArray = [];
   let textArray = [];
+  let selectedObject = null; // Currently selected object for editing
+  let transformControls = null; // TransformControls instance
+
+  /**
+   * Initializes TransformControls for editing decals and texts.
+   */
+  function initializeTransformControls() {
+    if (typeof THREE.TransformControls === 'undefined') {
+      console.error('TransformControls not loaded');
+      return;
+    }
+    transformControls = new THREE.TransformControls(camera, renderer.domElement);
+    transformControls.addEventListener('change', render);
+    transformControls.addEventListener('dragging-changed', function (event) {
+      orbitControls.enabled = !event.value;
+    });
+    scene.add(transformControls);
+
+    // Handle keyboard events for transform modes
+    window.addEventListener('keydown', function (event) {
+      switch (event.key) {
+        case 't':
+          transformControls.setMode('translate');
+          break;
+        case 'r':
+          transformControls.setMode('rotate');
+          break;
+        case 's':
+          transformControls.setMode('scale');
+          break;
+      }
+    });
+  }
+
+  initializeTransformControls();
+
+  /**
+   * Selects a decal or text object for editing with TransformControls.
+   * @param {THREE.Mesh} object - The object to select.
+   */
+  function selectObjectForEditing(object) {
+    if (object) {
+      selectedObject = object;
+      transformControls.attach(selectedObject);
+    }
+  }
 
   /**
    * Places a decal on the outer mesh using the provided file URL.
@@ -448,7 +516,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create mesh
     const textMesh = new THREE.Mesh(textGeom, textMat);
-    textMesh.position.set(0, 1, 0.5); // Adjust position as needed
+    // Position the text on the front of the T-shirt
+    if (outerMesh) {
+      const bbox = new THREE.Box3().setFromObject(outerMesh);
+      const center = bbox.getCenter(new THREE.Vector3());
+      const size = bbox.getSize(new THREE.Vector3());
+
+      // Position the text at the upper front area
+      textMesh.position.set(center.x, center.y + size.y / 4, bbox.max.z + 0.1);
+    } else {
+      textMesh.position.set(0, 1, 0.5); // Fallback position
+    }
     scene.add(textMesh);
 
     // Store text information
@@ -473,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function addLayerItem(item) {
     const div = document.createElement('div');
     div.className = 'layer-item d-flex align-items-center mb-1';
+    div.style.cursor = 'pointer'; // Indicate interactivity
 
     // Thumbnail or icon
     if (item.type === 'decal') {
@@ -537,6 +616,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     div.appendChild(select);
 
+    // Event listener for selecting the decal/text for editing
+    div.addEventListener('click', (event) => {
+      // Prevent triggering when clicking on the select dropdown
+      if (event.target.tagName.toLowerCase() === 'select' || event.target.tagName.toLowerCase() === 'option') {
+        return;
+      }
+      selectObjectForEditing(item);
+    });
+
     itemsList.appendChild(div);
   }
 
@@ -568,6 +656,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update material
     mesh.material.map = newTexture;
     mesh.material.needsUpdate = true;
+  }
+
+  /**
+   * Selects a decal or text object for editing with TransformControls.
+   * @param {Object} item - The decal or text item to select.
+   */
+  function selectObjectForEditing(item) {
+    if (item.type === 'decal' || item.type === 'text') {
+      selectedObject = item.mesh;
+      transformControls.attach(selectedObject);
+    }
   }
 
   // ============= 9) Save Design =============
@@ -659,6 +758,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   });
 
+  /**
+   * Renders the current state of the scene.
+   */
+  function render() {
+    renderer.render(scene, camera);
+  }
+
   // ============= 11) Render Loop =============
   function animate() {
     requestAnimationFrame(animate);
@@ -667,6 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   animate();
 });
+
 
 
 
