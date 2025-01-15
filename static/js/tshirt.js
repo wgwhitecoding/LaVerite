@@ -1,7 +1,7 @@
 // static/js/decal_tshirt.js
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ============= 1) DOM elements =============
+  // ============= 1) DOM Elements =============
   const canvas = document.getElementById('tshirtCanvas');
 
   const productBtns = document.querySelectorAll('.product-btn');
@@ -50,24 +50,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ============= 3) Load GLTF Model =============
   const gltfLoader = new THREE.GLTFLoader();
-  let groupMesh = null;       // the entire GLTF scene or group
-  let actualMesh = null;      // the first sub-mesh with real geometry
+  let groupMesh = null;         // The entire GLTF scene or group
+  let outerMesh = null;         // The outer mesh with real geometry
+  let innerMesh = null;         // The inner mesh with real geometry
 
-  function findFirstMesh(root) {
-    let found = null;
+  /**
+   * Utility function to find all meshes with geometry in the loaded GLTF.
+   * @param {THREE.Object3D} root - The root object of the loaded GLTF.
+   * @returns {Array<THREE.Mesh>} - Array of found meshes.
+   */
+  function findAllMeshes(root) {
+    const meshes = [];
     root.traverse((obj) => {
       if (obj.isMesh && obj.geometry) {
-        found = obj;
+        meshes.push(obj);
       }
     });
-    return found;
+    return meshes;
   }
 
+  /**
+   * Identifies the outer and inner meshes based on their bounding sphere sizes.
+   * Assumes the outer mesh has the largest bounding sphere.
+   * @param {Array<THREE.Mesh>} meshes - Array of meshes to evaluate.
+   */
+  function identifyOuterAndInnerMeshes(meshes) {
+    if (meshes.length === 0) return;
+
+    // Sort meshes by bounding sphere radius in descending order
+    const sortedMeshes = meshes.sort((a, b) => {
+      const bboxA = new THREE.Box3().setFromObject(a);
+      const sphereA = new THREE.Sphere();
+      bboxA.getBoundingSphere(sphereA);
+
+      const bboxB = new THREE.Box3().setFromObject(b);
+      const sphereB = new THREE.Sphere();
+      bboxB.getBoundingSphere(sphereB);
+
+      return sphereB.radius - sphereA.radius;
+    });
+
+    outerMesh = sortedMeshes[0]; // Largest mesh
+    innerMesh = meshes.length > 1 ? sortedMeshes[1] : null; // Second largest mesh if exists
+
+    console.log("Outer Mesh:", outerMesh ? (outerMesh.name || outerMesh.id) : "None");
+    console.log("Inner Mesh:", innerMesh ? (innerMesh.name || innerMesh.id) : "None");
+  }
+
+  /**
+   * Loads a GLTF model into the scene.
+   * @param {string} modelName - The filename of the GLTF model to load.
+   */
   function loadModel(modelName) {
+    // Remove existing model if present
     if (groupMesh) {
       scene.remove(groupMesh);
       groupMesh = null;
-      actualMesh = null;
+      outerMesh = null;
+      innerMesh = null;
+
+      // Clear existing decals and texts
+      clearDecalsAndTexts();
     }
     const path = '/static/models/' + modelName;
 
@@ -77,23 +120,39 @@ document.addEventListener('DOMContentLoaded', () => {
         groupMesh = gltf.scene;
         scene.add(groupMesh);
 
-        actualMesh = findFirstMesh(groupMesh);
-        if (!actualMesh) {
-          console.error("No actual submesh found in this GLB, can't do decals.");
-        } else {
-          console.log("Found submesh:", actualMesh.name || actualMesh.id);
+        const allMeshes = findAllMeshes(groupMesh);
+        identifyOuterAndInnerMeshes(allMeshes);
 
-          // If geometry has no index, create one to avoid .index errors
-          const geo = actualMesh.geometry;
-          if (!geo.index) {
-            console.log("No index on geometry. Creating a dummy index so DecalGeometry won't crash.");
-            const posCount = geo.attributes.position.count;
-            const indices = [...Array(posCount).keys()];  // 0..posCount-1
-            geo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(indices), 1));
+        if (!outerMesh) {
+          console.error("No outer mesh found in this GLB, can't apply color or decals.");
+          return;
+        }
+
+        // If geometry has no index, create one to avoid .index errors
+        const geo = outerMesh.geometry;
+        if (!geo.index) {
+          console.log("No index on geometry. Creating a dummy index so DecalGeometry won't crash.");
+          const posCount = geo.attributes.position.count;
+          const indices = [...Array(posCount).keys()];  // 0..posCount-1
+          geo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(indices), 1));
+        }
+
+        // Ensure materials are double-sided for proper decal placement
+        outerMesh.traverse((node) => {
+          if (node.isMesh && node.material) {
+            if (Array.isArray(node.material)) {
+              node.material.forEach((mat) => {
+                mat.side = THREE.DoubleSide;
+              });
+            } else {
+              node.material.side = THREE.DoubleSide;
+            }
           }
+        });
 
-          // Ensure materials are double-sided for proper decal placement
-          actualMesh.traverse((node) => {
+        // If inner mesh exists, ensure its materials are also double-sided
+        if (innerMesh) {
+          innerMesh.traverse((node) => {
             if (node.isMesh && node.material) {
               if (Array.isArray(node.material)) {
                 node.material.forEach((mat) => {
@@ -140,6 +199,33 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
+  /**
+   * Clears all existing decals and texts from the scene and arrays.
+   */
+  function clearDecalsAndTexts() {
+    // Remove decals
+    decalsArray.forEach(decal => {
+      if (scene.children.includes(decal.mesh)) {
+        scene.remove(decal.mesh);
+      }
+    });
+    decalsArray = [];
+
+    // Remove texts
+    textArray.forEach(text => {
+      if (scene.children.includes(text.mesh)) {
+        scene.remove(text.mesh);
+      }
+    });
+    textArray = [];
+
+    // Clear layers list
+    while (itemsList.firstChild) {
+      itemsList.removeChild(itemsList.firstChild);
+    }
+  }
+
+  // Initially load the default product
   loadModel(currentProduct);
 
   // ============= 4) Switch Product on Button Click =============
@@ -157,18 +243,36 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============= 5) Color Changing =============
+  /**
+   * Applies the selected color to both the outer and inner meshes.
+   * @param {string} hex - The hexadecimal color code.
+   */
   function setProductColor(hex) {
     currentColor = hex;
-    if (!actualMesh) return;
+    if (!outerMesh) return;
 
-    actualMesh.traverse((node) => {
+    // Apply color to outer mesh
+    outerMesh.traverse((node) => {
       if (node.isMesh && node.material && node.material.color) {
         node.material.color.set(hex);
+        node.material.side = THREE.DoubleSide; // Ensure both sides are rendered
         node.material.needsUpdate = true;
       }
     });
+
+    // Apply color to inner mesh if it exists
+    if (innerMesh) {
+      innerMesh.traverse((node) => {
+        if (node.isMesh && node.material && node.material.color) {
+          node.material.color.set(hex);
+          node.material.side = THREE.DoubleSide; // Ensure both sides are rendered
+          node.material.needsUpdate = true;
+        }
+      });
+    }
   }
 
+  // Event listeners for predefined color buttons
   colorBtns.forEach((btn) => {
     btn.addEventListener('click', (e) => {
       const hex = e.target.dataset.color;
@@ -176,6 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Event listener for custom color picker
   customColorInput.addEventListener('input', (e) => {
     setProductColor(e.target.value);
   });
@@ -184,14 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let decalsArray = [];
   let textArray = [];
 
-  // Function to place decal from server URL
+  /**
+   * Places a decal on the outer mesh using the provided file URL.
+   * @param {string} fileUrl - The URL of the decal image.
+   */
   function placeDecalAuto(fileUrl) {
     if (!fileUrl) {
       console.log("No file URL. The server might not have returned a valid path?");
       return;
     }
-    if (!actualMesh) {
-      console.log("No actual submesh found, can't place decal.");
+    if (!outerMesh) {
+      console.log("No outer mesh found, can't place decal.");
       return;
     }
 
@@ -200,7 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
       decalTexture.needsUpdate = true;
 
       // Calculate a suitable position on the front of the T-shirt based on bounding box
-      const bbox = new THREE.Box3().setFromObject(actualMesh);
+      const bbox = new THREE.Box3().setFromObject(outerMesh);
       const center = bbox.getCenter(new THREE.Vector3());
       const size = bbox.getSize(new THREE.Vector3());
 
@@ -217,10 +325,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Create DecalGeometry
       const decalGeom = new THREE.DecalGeometry(
-        actualMesh, // Target mesh
-        decalPosition, // Position
-        orientation, // Orientation
-        decalSize // Size
+        outerMesh,       // Target mesh (outer mesh)
+        decalPosition,   // Position
+        orientation,     // Orientation
+        decalSize        // Size
       );
 
       // Create material with appropriate properties
@@ -297,6 +405,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============= 7) Add Text =============
+  /**
+   * Adds a text layer to the T-shirt.
+   */
   addTextBtn.addEventListener('click', () => {
     const textVal = textValueInput.value.trim();
     if (!textVal) {
@@ -355,10 +466,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ============= 8) Layers / Items List =============
+  /**
+   * Adds an item to the layers list in the sidebar.
+   * @param {Object} item - The decal or text item to add.
+   */
   function addLayerItem(item) {
     const div = document.createElement('div');
     div.className = 'layer-item d-flex align-items-center mb-1';
 
+    // Thumbnail or icon
     if (item.type === 'decal') {
       const thumb = document.createElement('img');
       thumb.style.width = '40px';
@@ -424,7 +540,10 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsList.appendChild(div);
   }
 
-  // Helper function to update text texture when renamed
+  /**
+   * Updates the texture of a text mesh when renamed.
+   * @param {Object} item - The text item to update.
+   */
   function updateTextTexture(item) {
     if (item.type !== 'text') return;
     const mesh = item.mesh;
@@ -452,30 +571,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============= 9) Save Design =============
-  saveDesignBtn.addEventListener('click', () => {
-    const designData = gatherDesignData();
-    fetch('/save_design/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
-      },
-      body: JSON.stringify(designData)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'ok') {
-        alert('Design saved! ID=' + data.design_id);
-      } else {
-        alert('Error saving design: ' + JSON.stringify(data));
-      }
-    })
-    .catch(err => {
-      alert('An error occurred while saving the design.');
-      console.error(err);
-    });
-  });
-
+  /**
+   * Gathers the current design data to send to the backend.
+   * @returns {Object} - The design data.
+   */
   function gatherDesignData() {
     const data = {
       product: currentProductKey,
@@ -508,7 +607,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return data;
   }
 
-  // Helper function to get CSRF token
+  /**
+   * Retrieves the value of a specified cookie.
+   * @param {string} name - The name of the cookie.
+   * @returns {string|null} - The value of the cookie or null if not found.
+   */
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -523,6 +626,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return cookieValue;
   }
+
+  // Event listener for Save Design button
+  saveDesignBtn.addEventListener('click', () => {
+    const designData = gatherDesignData();
+    fetch('/save_design/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(designData)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'ok') {
+        alert('Design saved! ID=' + data.design_id);
+      } else {
+        alert('Error saving design: ' + JSON.stringify(data));
+      }
+    })
+    .catch(err => {
+      alert('An error occurred while saving the design.');
+      console.error(err);
+    });
+  });
 
   // ============= 10) Handle Window Resize =============
   window.addEventListener('resize', () => {
@@ -539,6 +667,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   animate();
 });
+
+
+
 
 
 
