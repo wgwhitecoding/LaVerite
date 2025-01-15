@@ -17,24 +17,28 @@
       class="product-btn"
       data-model="Tshirt.glb"
       alt="T-Shirt"
+      style="width: 60px; height: 60px; cursor: pointer;"
     >
     <img
       src="https://via.placeholder.com/60x60?text=Baggy"
       class="product-btn"
       data-model="Baggy.glb"
       alt="Baggy"
+      style="width: 60px; height: 60px; cursor: pointer;"
     >
     <img
       src="https://via.placeholder.com/60x60?text=Hoodie"
       class="product-btn"
       data-model="Hoodie.glb"
       alt="Hoodie"
+      style="width: 60px; height: 60px; cursor: pointer;"
     >
     <img
       src="https://via.placeholder.com/60x60?text=Jumper"
       class="product-btn"
       data-model="Jumper.glb"
       alt="Jumper"
+      style="width: 60px; height: 60px; cursor: pointer;"
     >
   </div>
 
@@ -44,34 +48,34 @@
   </h4>
   <div class="row row-cols-5 g-2 mb-3">
     <div class="col">
-      <button class="color-btn" data-color="#ffffff" style="background-color:#ffffff;"></button>
+      <button class="color-btn" data-color="#ffffff" style="background-color:#ffffff; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#000000" style="background-color:#000000;"></button>
+      <button class="color-btn" data-color="#000000" style="background-color:#000000; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#ff0000" style="background-color:#ff0000;"></button>
+      <button class="color-btn" data-color="#ff0000" style="background-color:#ff0000; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#00ff00" style="background-color:#00ff00;"></button>
+      <button class="color-btn" data-color="#00ff00" style="background-color:#00ff00; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#0000ff" style="background-color:#0000ff;"></button>
+      <button class="color-btn" data-color="#0000ff" style="background-color:#0000ff; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#ff9900" style="background-color:#ff9900;"></button>
+      <button class="color-btn" data-color="#ff9900" style="background-color:#ff9900; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#ff00ff" style="background-color:#ff00ff;"></button>
+      <button class="color-btn" data-color="#ff00ff" style="background-color:#ff00ff; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#00ffff" style="background-color:#00ffff;"></button>
+      <button class="color-btn" data-color="#00ffff" style="background-color:#00ffff; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#808080" style="background-color:#808080;"></button>
+      <button class="color-btn" data-color="#808080" style="background-color:#808080; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
     <div class="col">
-      <button class="color-btn" data-color="#ffaec9" style="background-color:#ffaec9;"></button>
+      <button class="color-btn" data-color="#ffaec9" style="background-color:#ffaec9; width: 100%; height: 40px; border: none; cursor: pointer;"></button>
     </div>
   </div>
   <label for="customColor" class="form-label">
@@ -135,26 +139,17 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Include Font Awesome in base.html or a CDN link here:
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" ... />
+<!-- Include Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrQkTy3pUQFUYk5KvG2uGecXLYcZr5K/u+yYghqbt5MjC1u6UVl0lgEQvSVhEro8N6vmHci37OymvPAkqA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-     Three.js + DecalGeometry + OrbitControls
--->
+<!-- Three.js + DecalGeometry + OrbitControls -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/loaders/GLTFLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
 <script src="{% static 'js/DecalGeometry.js' %}"></script>
 
-<!-- The updated 'tshirt.js' or 'decal_tshirt.js' that handles:
-     - Window resizing
-     - File uploads with thumbnail
-     - Items / layers with rename + dropdown
-     Make sure it references the new logic for item "rename" & "dropdown" if you want it. 
--->
+<!-- Your main JavaScript file -->
 <script src="{% static 'js/tshirt.js' %}"></script>
 {% endblock %}
-
-
-
 
 
