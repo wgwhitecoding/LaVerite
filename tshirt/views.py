@@ -1,9 +1,17 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.db.models import Sum
+from .models import Cart, CartItem, Design
 import os
 import json
 
@@ -20,6 +28,121 @@ def home(request):
     Renders the create page.
     """
     return render(request, 'tshirt/home.html') 
+
+
+def view_cart(request):
+    """
+    Displays the cart. Uses the session for anonymous users.
+    """
+    if request.user.is_authenticated:
+        # Get or create a cart for the authenticated user
+        cart, created = Cart.objects.get_or_create(user=request.user)
+    else:
+        # Use the session for anonymous users
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()
+        cart, created = Cart.objects.get_or_create(session_id=session_id)
+
+    # Fetch all items in the cart
+    items = cart.items.all()
+
+    # Calculate the total price of items in the cart
+    for item in items:
+        item.total_price = item.quantity * item.price  # Add a temporary attribute
+
+    # Calculate the overall total
+    total_price = sum(item.total_price for item in items)
+
+    # Count the total number of items in the cart
+    cart_item_count = items.aggregate(count=Sum('quantity'))['count'] or 0
+
+    # Render the cart template
+    return render(request, "tshirt/cart.html", {
+        "cart": cart,
+        "items": items,
+        "total_price": total_price,
+        "cart_item_count": cart_item_count,
+    })
+
+
+def add_to_cart(request, design_id):
+    """
+    Adds a design to the cart. Creates a cart if it doesn't exist.
+    """
+    design = get_object_or_404(Design, id=design_id)
+
+    if request.user.is_authenticated:
+        cart, created = Cart.objects.get_or_create(user=request.user)
+    else:
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()
+        cart, created = Cart.objects.get_or_create(session_id=session_id)
+
+    # Add the item to the cart or increment quantity
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=design.name,  # Assuming `Design` has a `name` field
+        price=design.price  # Assuming `Design` has a `price` field
+    )
+    if not created:
+        cart_item.quantity += 1
+    cart_item.save()
+
+    return redirect("view_cart")
+
+
+def remove_from_cart(request, item_id):
+    """
+    Removes an item from the cart.
+    """
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if not session_id:
+            return redirect("view_cart")
+        cart = Cart.objects.filter(session_id=session_id).first()
+
+    if cart:
+        item = get_object_or_404(CartItem, id=item_id, cart=cart)
+        item.delete()
+
+    return redirect("view_cart")
+
+
+@login_required
+def checkout(request):
+    """
+    Handles checkout. Requires the user to be logged in.
+    """
+    cart = Cart.objects.filter(user=request.user).first()
+    if not cart or not cart.items.exists():
+        return redirect("view_cart")
+
+    # Checkout logic here (e.g., process payment)
+    # For simplicity, we assume the checkout is successful
+    cart.items.all().delete()  # Clear cart after checkout
+
+    return render(request, "tshirt/checkout.html", {"cart": cart})
+
+
+def get_cart_item_count(request):
+    """
+    Utility function to get the cart item count for the navbar.
+    """
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if not session_id:
+            request.session.create()
+        cart = Cart.objects.filter(session_id=request.session.session_key).first()
+
+    if cart:
+        return cart.items.aggregate(total_items=Sum('quantity'))['total_items'] or 0
+    return 0
 
 
 @csrf_exempt  # Remove this decorator in production for security

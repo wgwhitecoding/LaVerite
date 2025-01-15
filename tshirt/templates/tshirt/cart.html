@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1>Your Cart</h1>
+  {% if items %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Quantity</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.product }}</td>
+          <td>${{ item.price|floatformat:2 }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>${{ item.quantity|mul:item.price|floatformat:2 }}</td>
+          <td>
+            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <h3>Total: ${{ total_price|floatformat:2 }}</h3>
+    <a href="{% url 'checkout' %}" class="btn btn-primary">Checkout</a>
+  {% else %}
+    <p>Your cart is empty. Start <a href="{% url 'home' %}">creating designs</a>!</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+
+
+

@@ -4,6 +4,25 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 
+
+class Cart(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    session_id = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Cart ({self.user or self.session_id})"
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
+    product = models.CharField(max_length=255)  # Product name
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price per unit
+
+    def __str__(self):
+        return f"{self.product} - {self.quantity}"
+
 class Design(models.Model):
     """
     Represents a user's design, including chosen product, color, and creation date.
