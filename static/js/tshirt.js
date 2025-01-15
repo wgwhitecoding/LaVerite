@@ -3,31 +3,36 @@
 document.addEventListener('DOMContentLoaded', () => {
   // ============= 1) DOM Elements =============
   const canvas = document.getElementById('tshirtCanvas');
-
+  
   const productBtns = document.querySelectorAll('.product-btn');
   const colorBtns = document.querySelectorAll('.color-btn');
   const customColorInput = document.getElementById('customColor');
   const uploadImageInput = document.getElementById('uploadImage');
+  const addTextBtn = document.getElementById('addTextBtn');
   const textValueInput = document.getElementById('textValue');
   const textColorInput = document.getElementById('textColor');
-  const addTextBtn = document.getElementById('addTextBtn');
-
+  const fontSelect = document.getElementById('fontSelect');
+  
   const itemsList = document.getElementById('itemsList');
   const saveDesignBtn = document.getElementById('saveDesignBtn');
-
+  
+  const translateBtn = document.getElementById('translateBtn');
+  const rotateBtn = document.getElementById('rotateBtn');
+  const scaleBtn = document.getElementById('scaleBtn');
+  
   // Current selections
   let currentProduct = 'Tshirt.glb';
   let currentProductKey = 'tshirt';
   let currentColor = '#ffffff';  // default T-shirt color
-
+  
   // ============= 2) Three.js Setup =============
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
-
+  
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf5f5f5);
-
+  
   const camera = new THREE.PerspectiveCamera(
     60,
     canvas.clientWidth / canvas.clientHeight,
@@ -35,25 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
     1000
   );
   camera.position.set(0, 1, 5); // Adjusted position for better visibility
-
+  
   const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
   orbitControls.enableDamping = true;
   orbitControls.dampingFactor = 0.07;
-
+  
   // Lights
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
   scene.add(ambientLight);
-
+  
   const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
   dirLight.position.set(5, 10, 5);
   scene.add(dirLight);
-
+  
   // ============= 3) Load GLTF Model =============
   const gltfLoader = new THREE.GLTFLoader();
   let groupMesh = null;         // The entire GLTF scene or group
   let outerMesh = null;         // The outer mesh with real geometry
   let innerMesh = null;         // The inner mesh with real geometry
-
+  
   /**
    * Utility function to find all meshes with geometry in the loaded GLTF.
    * @param {THREE.Object3D} root - The root object of the loaded GLTF.
@@ -68,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     return meshes;
   }
-
+  
   /**
    * Identifies the outer and inner meshes based on their bounding sphere sizes.
    * Assumes the outer mesh has the largest bounding sphere.
@@ -76,27 +81,27 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   function identifyOuterAndInnerMeshes(meshes) {
     if (meshes.length === 0) return;
-
+    
     // Sort meshes by bounding sphere radius in descending order
     const sortedMeshes = meshes.sort((a, b) => {
       const bboxA = new THREE.Box3().setFromObject(a);
       const sphereA = new THREE.Sphere();
       bboxA.getBoundingSphere(sphereA);
-
+  
       const bboxB = new THREE.Box3().setFromObject(b);
       const sphereB = new THREE.Sphere();
       bboxB.getBoundingSphere(sphereB);
-
+  
       return sphereB.radius - sphereA.radius;
     });
-
+    
     outerMesh = sortedMeshes[0]; // Largest mesh
     innerMesh = meshes.length > 1 ? sortedMeshes[1] : null; // Second largest mesh if exists
-
+    
     console.log("Outer Mesh:", outerMesh ? (outerMesh.name || outerMesh.id) : "None");
     console.log("Inner Mesh:", innerMesh ? (innerMesh.name || innerMesh.id) : "None");
   }
-
+  
   /**
    * Loads a GLTF model into the scene.
    * @param {string} modelName - The filename of the GLTF model to load.
@@ -108,26 +113,26 @@ document.addEventListener('DOMContentLoaded', () => {
       groupMesh = null;
       outerMesh = null;
       innerMesh = null;
-
+  
       // Clear existing decals and texts
       clearDecalsAndTexts();
     }
     const path = '/static/models/' + modelName;
-
+  
     gltfLoader.load(
       path,
       (gltf) => {
         groupMesh = gltf.scene;
         scene.add(groupMesh);
-
+  
         const allMeshes = findAllMeshes(groupMesh);
         identifyOuterAndInnerMeshes(allMeshes);
-
+  
         if (!outerMesh) {
           console.error("No outer mesh found in this GLB, can't apply color or decals.");
           return;
         }
-
+  
         // If geometry has no index, create one to avoid .index errors
         const geo = outerMesh.geometry;
         if (!geo.index) {
@@ -136,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const indices = [...Array(posCount).keys()];  // 0..posCount-1
           geo.setIndex(new THREE.Uint32BufferAttribute(new Uint32Array(indices), 1));
         }
-
+  
         // Ensure materials are double-sided for proper decal placement
         outerMesh.traverse((node) => {
           if (node.isMesh && node.material) {
@@ -149,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
-
+  
         // If inner mesh exists, ensure its materials are also double-sided
         if (innerMesh) {
           innerMesh.traverse((node) => {
@@ -164,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           });
         }
-
+  
         // Scale and center the model
         groupMesh.scale.set(15, 15, 15);
         const bbox = new THREE.Box3().setFromObject(groupMesh);
@@ -172,12 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
         groupMesh.position.x -= center.x;
         groupMesh.position.y -= center.y;
         groupMesh.position.z -= center.z;
-
+  
         // Adjust camera and orbit controls based on the model's bounding sphere
         bbox.setFromObject(groupMesh);
         const sphere = new THREE.Sphere();
         bbox.getBoundingSphere(sphere);
-
+  
         camera.position.set(
           sphere.center.x,
           sphere.center.y,
@@ -185,13 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         orbitControls.target.copy(sphere.center);
         orbitControls.update();
-
+  
         orbitControls.minDistance = sphere.radius * 0.8;
         orbitControls.maxDistance = sphere.radius * 5;
-
+  
         // Apply initial color
         setProductColor(currentColor);
-
+  
         console.log(modelName, 'loaded!');
       },
       (xhr) => {
@@ -203,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     );
   }
-
+  
   /**
    * Clears all existing decals and texts from the scene and arrays.
    */
@@ -216,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     decalsArray = [];
-
+  
     // Remove texts
     textArray.forEach(text => {
       if (scene.children.includes(text.mesh)) {
@@ -225,13 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     textArray = [];
-
+  
     // Clear layers list
     while (itemsList.firstChild) {
       itemsList.removeChild(itemsList.firstChild);
     }
   }
-
+  
   /**
    * Disposes of mesh geometry and materials to free up memory.
    * @param {THREE.Mesh} mesh - The mesh to dispose.
@@ -246,10 +251,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
-
+  
   // Initially load the default product
   loadModel(currentProduct);
-
+  
   // ============= 4) Switch Product on Button Click =============
   productBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -259,11 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (modelFile.toLowerCase().includes('baggy')) currentProductKey = 'baggy';
       else if (modelFile.toLowerCase().includes('jumper')) currentProductKey = 'jumper';
       else currentProductKey = 'tshirt';
-
+  
       loadModel(currentProduct);
     });
   });
-
+  
   // ============= 5) Color Changing =============
   /**
    * Applies the selected color to both the outer and inner meshes.
@@ -272,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function setProductColor(hex) {
     currentColor = hex;
     if (!outerMesh) return;
-
+  
     // Apply color to outer mesh
     outerMesh.traverse((node) => {
       if (node.isMesh && node.material && node.material.color) {
@@ -281,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         node.material.needsUpdate = true;
       }
     });
-
+  
     // Apply color to inner mesh if it exists
     if (innerMesh) {
       innerMesh.traverse((node) => {
@@ -293,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
-
+  
   // Event listeners for predefined color buttons
   colorBtns.forEach((btn) => {
     btn.addEventListener('click', (e) => {
@@ -301,18 +306,18 @@ document.addEventListener('DOMContentLoaded', () => {
       setProductColor(hex);
     });
   });
-
+  
   // Event listener for custom color picker
   customColorInput.addEventListener('input', (e) => {
     setProductColor(e.target.value);
   });
-
+  
   // ============= 6) Decal Upload and Placement =============
   let decalsArray = [];
   let textArray = [];
   let selectedObject = null; // Currently selected object for editing
   let transformControls = null; // TransformControls instance
-
+  
   /**
    * Initializes TransformControls for editing decals and texts.
    */
@@ -327,36 +332,127 @@ document.addEventListener('DOMContentLoaded', () => {
       orbitControls.enabled = !event.value;
     });
     scene.add(transformControls);
-
+  
     // Handle keyboard events for transform modes
     window.addEventListener('keydown', function (event) {
       switch (event.key) {
         case 't':
-          transformControls.setMode('translate');
+          if (transformControls) transformControls.setMode('translate');
+          setActiveTransformButton('translate');
           break;
         case 'r':
-          transformControls.setMode('rotate');
+          if (transformControls) transformControls.setMode('rotate');
+          setActiveTransformButton('rotate');
           break;
         case 's':
-          transformControls.setMode('scale');
+          if (transformControls) transformControls.setMode('scale');
+          setActiveTransformButton('scale');
           break;
       }
     });
   }
-
+  
   initializeTransformControls();
-
+  
+  /**
+   * Sets the active transform button based on the current mode.
+   * @param {string} mode - The current transform mode ('translate', 'rotate', 'scale').
+   */
+  function setActiveTransformButton(mode) {
+    translateBtn.classList.remove('active');
+    rotateBtn.classList.remove('active');
+    scaleBtn.classList.remove('active');
+  
+    switch (mode) {
+      case 'translate':
+        translateBtn.classList.add('active');
+        break;
+      case 'rotate':
+        rotateBtn.classList.add('active');
+        break;
+      case 'scale':
+        scaleBtn.classList.add('active');
+        break;
+    }
+  }
+  
   /**
    * Selects a decal or text object for editing with TransformControls.
    * @param {THREE.Mesh} object - The object to select.
    */
-  function selectObjectForEditing(object) {
-    if (object) {
-      selectedObject = object;
-      transformControls.attach(selectedObject);
+  function selectObject(object) {
+    selectedObject = object;
+    transformControls.attach(selectedObject);
+    
+    // Optional: Highlight the selected object
+    // Remove highlight from all objects
+    decalsArray.forEach(d => {
+      if (d.mesh.material.emissive) d.mesh.material.emissive.set(0x000000);
+    });
+    textArray.forEach(t => {
+      if (t.mesh.material.emissive) t.mesh.material.emissive.set(0x000000);
+    });
+    
+    // Highlight the selected object
+    if (object.material.emissive) {
+      object.material.emissive.set(0x444444); // Adjust the highlight color as desired
+    }
+  
+    // Update the layers sidebar to reflect the selected object
+    highlightLayerItem(object);
+  }
+  
+  // Initialize Raycaster and mouse vector
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  
+  // Add event listener for mouse clicks
+  canvas.addEventListener('mousedown', onMouseDown, false);
+  
+  function onMouseDown(event) {
+    // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
+  
+    // Update the raycaster with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+  
+    // Define objects to intersect (decals and texts)
+    const objects = [...decalsArray.map(d => d.mesh), ...textArray.map(t => t.mesh)];
+  
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects(objects, false);
+  
+    if (intersects.length > 0) {
+      const selectedMesh = intersects[0].object;
+      selectObject(selectedMesh);
+    } else {
+      // If no object is clicked, detach TransformControls
+      if (transformControls) transformControls.detach();
+      selectedObject = null;
+      // Remove highlight from all layer items
+      const layerItems = itemsList.querySelectorAll('.layer-item');
+      layerItems.forEach(item => item.classList.remove('active'));
     }
   }
-
+  
+  /**
+   * Highlights the corresponding layer item in the sidebar when an object is selected on the canvas.
+   * @param {THREE.Mesh} selectedMesh - The selected mesh.
+   */
+  function highlightLayerItem(selectedMesh) {
+    const layerItems = itemsList.querySelectorAll('.layer-item');
+    
+    layerItems.forEach(item => {
+      if (parseInt(item.dataset.meshId) === selectedMesh.id) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+  
   /**
    * Places a decal on the outer mesh using the provided file URL.
    * @param {string} fileUrl - The URL of the decal image.
@@ -370,27 +466,27 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log("No outer mesh found, can't place decal.");
       return;
     }
-
+  
     // Load the decal texture
     const decalTexture = new THREE.TextureLoader().load(fileUrl, () => {
       decalTexture.needsUpdate = true;
-
+  
       // Calculate a suitable position on the front of the T-shirt based on bounding box
       const bbox = new THREE.Box3().setFromObject(outerMesh);
       const center = bbox.getCenter(new THREE.Vector3());
       const size = bbox.getSize(new THREE.Vector3());
-
+  
       // Place the decal roughly at the front center
       const decalPosition = new THREE.Vector3(center.x, center.y, bbox.max.z + 0.1); // Slightly in front
       const decalNormal = new THREE.Vector3(0, 0, 1); // Facing outward
-
+  
       // Create orientation based on normal
       const orientation = new THREE.Euler();
       orientation.setFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), decalNormal));
-
+  
       // Define decal size relative to the model size
       const decalSize = new THREE.Vector3(1, 1, 1); // Adjust as needed
-
+  
       // Create DecalGeometry
       const decalGeom = new THREE.DecalGeometry(
         outerMesh,       // Target mesh (outer mesh)
@@ -398,7 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orientation,     // Orientation
         decalSize        // Size
       );
-
+  
       // Create material with appropriate properties
       const decalMat = new THREE.MeshStandardMaterial({
         map: decalTexture,
@@ -409,11 +505,11 @@ document.addEventListener('DOMContentLoaded', () => {
         polygonOffsetFactor: -4, // Adjust to prevent z-fighting
         polygonOffsetUnits: 1
       });
-
+  
       // Create decal mesh and add to scene
       const decalMesh = new THREE.Mesh(decalGeom, decalMat);
       scene.add(decalMesh);
-
+  
       // Store decal information
       const decalItem = {
         type: 'decal',
@@ -426,13 +522,13 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       decalsArray.push(decalItem);
       addLayerItem(decalItem);
-
+  
       console.log("Decal placed from fileUrl at:", decalPosition);
     }, undefined, (err) => {
       console.error("Error loading decal texture:", err);
     });
   }
-
+  
   // Event listener for Upload File button
   const uploadFileBtn = document.getElementById('uploadFileBtn');
   if (uploadFileBtn) {
@@ -443,10 +539,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       console.log("Uploading file:", file.name);
-
+  
       const formData = new FormData();
       formData.append('decalFile', file);
-
+  
       fetch('/upload_decal/', {
         method: 'POST',
         body: formData,
@@ -471,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-
+  
   // ============= 7) Add Text =============
   /**
    * Adds a text layer to the T-shirt.
@@ -483,7 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const tColor = textColorInput.value;
-
+    const fontStyle = fontSelect.value;
+  
     // Create a canvas to render the text
     const textCanvas = document.createElement('canvas');
     textCanvas.width = 512;
@@ -491,15 +588,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = textCanvas.getContext('2d');
     ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     ctx.fillStyle = tColor;
-    ctx.font = '50px Arial';
+    ctx.font = `50px ${fontStyle}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(textVal, textCanvas.width / 2, textCanvas.height / 2);
-
+  
     // Create texture from canvas
     const textTexture = new THREE.CanvasTexture(textCanvas);
     textTexture.needsUpdate = true;
-
+  
     // Create material
     const textMat = new THREE.MeshStandardMaterial({
       map: textTexture,
@@ -510,10 +607,10 @@ document.addEventListener('DOMContentLoaded', () => {
       polygonOffsetFactor: -4,
       polygonOffsetUnits: 1
     });
-
+  
     // Create geometry
     const textGeom = new THREE.PlaneGeometry(1, 0.5); // Adjust size as needed
-
+  
     // Create mesh
     const textMesh = new THREE.Mesh(textGeom, textMat);
     // Position the text on the front of the T-shirt
@@ -521,28 +618,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const bbox = new THREE.Box3().setFromObject(outerMesh);
       const center = bbox.getCenter(new THREE.Vector3());
       const size = bbox.getSize(new THREE.Vector3());
-
+  
       // Position the text at the upper front area
       textMesh.position.set(center.x, center.y + size.y / 4, bbox.max.z + 0.1);
     } else {
       textMesh.position.set(0, 1, 0.5); // Fallback position
     }
     scene.add(textMesh);
-
+  
     // Store text information
     const textItem = {
       type: 'text',
       mesh: textMesh,
       content: textVal,
       color: tColor,
+      font: fontStyle,
       name: "Text " + (textArray.length + 1)
     };
     textArray.push(textItem);
     addLayerItem(textItem);
-
+  
     console.log("Text added:", textVal);
   });
-
+  
   // ============= 8) Layers / Items List =============
   /**
    * Adds an item to the layers list in the sidebar.
@@ -552,7 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const div = document.createElement('div');
     div.className = 'layer-item d-flex align-items-center mb-1';
     div.style.cursor = 'pointer'; // Indicate interactivity
-
+    
     // Thumbnail or icon
     if (item.type === 'decal') {
       const thumb = document.createElement('img');
@@ -560,15 +658,16 @@ document.addEventListener('DOMContentLoaded', () => {
       thumb.style.height = '40px';
       thumb.style.objectFit = 'cover';
       thumb.style.borderRadius = '4px';
-      thumb.style.marginRight = '0.5rem';
+      thumb.style.marginRight = '10px';
       thumb.src = item.imageUrl;
       div.appendChild(thumb);
     } else if (item.type === 'text') {
       const icon = document.createElement('i');
       icon.className = 'fas fa-font me-2';
+      icon.style.fontSize = '24px';
       div.appendChild(icon);
     }
-
+    
     // Rename input
     const renameInput = document.createElement('input');
     renameInput.type = 'text';
@@ -584,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     div.appendChild(renameInput);
-
+    
     // Action dropdown
     const select = document.createElement('select');
     select.className = 'form-select form-select-sm me-2';
@@ -615,19 +714,38 @@ document.addEventListener('DOMContentLoaded', () => {
       select.value = '';
     });
     div.appendChild(select);
-
-    // Event listener for selecting the decal/text for editing
+    
+    // Event listener for selecting the decal/text for editing via sidebar
     div.addEventListener('click', (event) => {
       // Prevent triggering when clicking on the select dropdown
       if (event.target.tagName.toLowerCase() === 'select' || event.target.tagName.toLowerCase() === 'option') {
         return;
       }
-      selectObjectForEditing(item);
+      selectObject(item.mesh);
     });
-
+    
+    // Associate the mesh with the layer item for easy reference
+    div.dataset.meshId = item.mesh.id;
+    
     itemsList.appendChild(div);
   }
-
+  
+  /**
+   * Highlights the corresponding layer item in the sidebar when an object is selected on the canvas.
+   * @param {THREE.Mesh} selectedMesh - The selected mesh.
+   */
+  function highlightLayerItem(selectedMesh) {
+    const layerItems = itemsList.querySelectorAll('.layer-item');
+    
+    layerItems.forEach(item => {
+      if (parseInt(item.dataset.meshId) === selectedMesh.id) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+  
   /**
    * Updates the texture of a text mesh when renamed.
    * @param {Object} item - The text item to update.
@@ -636,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (item.type !== 'text') return;
     const mesh = item.mesh;
     if (!mesh) return;
-
+  
     // Create a new canvas with updated text
     const textCanvas = document.createElement('canvas');
     textCanvas.width = 512;
@@ -644,68 +762,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = textCanvas.getContext('2d');
     ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     ctx.fillStyle = item.color;
-    ctx.font = '50px Arial';
+    ctx.font = `50px ${item.font}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(item.content, textCanvas.width / 2, textCanvas.height / 2);
-
+  
     // Update the texture
     const newTexture = new THREE.CanvasTexture(textCanvas);
     newTexture.needsUpdate = true;
-
+  
     // Update material
     mesh.material.map = newTexture;
     mesh.material.needsUpdate = true;
   }
-
-  /**
-   * Selects a decal or text object for editing with TransformControls.
-   * @param {Object} item - The decal or text item to select.
-   */
-  function selectObjectForEditing(item) {
-    if (item.type === 'decal' || item.type === 'text') {
-      selectedObject = item.mesh;
-      transformControls.attach(selectedObject);
-    }
-  }
-
-  // ============= 9) Save Design =============
-  /**
-   * Gathers the current design data to send to the backend.
-   * @returns {Object} - The design data.
-   */
-  function gatherDesignData() {
-    const data = {
-      product: currentProductKey,
-      color: currentColor,
-      decals: [],
-      texts: []
-    };
-    decalsArray.forEach(d => {
-      data.decals.push({
-        imageUrl: d.imageUrl,
-        position: { x: d.position.x, y: d.position.y, z: d.position.z },
-        rotation: { x: d.rotation.x, y: d.rotation.y, z: d.rotation.z },
-        size: { x: d.size.x, y: d.size.y, z: d.size.z },
-        name: d.name
-      });
-    });
-    textArray.forEach(t => {
-      const pos = t.mesh.position;
-      const rot = t.mesh.rotation;
-      const scl = t.mesh.scale;
-      data.texts.push({
-        content: t.content,
-        color: t.color,
-        position: { x: pos.x, y: pos.y, z: pos.z },
-        rotation: { x: rot.x, y: rot.y, z: rot.z },
-        scale: { x: scl.x, y: scl.y, z: scl.z },
-        name: t.name
-      });
-    });
-    return data;
-  }
-
+  
   /**
    * Retrieves the value of a specified cookie.
    * @param {string} name - The name of the cookie.
@@ -725,7 +795,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     return cookieValue;
   }
-
+  
+  // ============= 9) Save Design =============
+  /**
+   * Gathers the current design data to send to the backend.
+   * @returns {Object} - The design data.
+   */
+  function gatherDesignData() {
+    const data = {
+      product: currentProductKey,
+      color: currentColor,
+      decals: [],
+      texts: []
+    };
+    decalsArray.forEach(d => {
+      data.decals.push({
+        imageUrl: d.imageUrl,
+        position: { x: d.mesh.position.x, y: d.mesh.position.y, z: d.mesh.position.z },
+        rotation: { x: d.mesh.rotation.x, y: d.mesh.rotation.y, z: d.mesh.rotation.z },
+        scale: { x: d.mesh.scale.x, y: d.mesh.scale.y, z: d.mesh.scale.z },
+        name: d.name
+      });
+    });
+    textArray.forEach(t => {
+      const pos = t.mesh.position;
+      const rot = t.mesh.rotation;
+      const scl = t.mesh.scale;
+      data.texts.push({
+        content: t.content,
+        color: t.color,
+        font: t.font,
+        position: { x: pos.x, y: pos.y, z: pos.z },
+        rotation: { x: rot.x, y: rot.y, z: rot.z },
+        scale: { x: scl.x, y: scl.y, z: scl.z },
+        name: t.name
+      });
+    });
+    return data;
+  }
+  
   // Event listener for Save Design button
   saveDesignBtn.addEventListener('click', () => {
     const designData = gatherDesignData();
@@ -750,21 +858,21 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(err);
     });
   });
-
+  
   // ============= 10) Handle Window Resize =============
   window.addEventListener('resize', () => {
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
   });
-
+  
   /**
    * Renders the current state of the scene.
    */
   function render() {
     renderer.render(scene, camera);
   }
-
+  
   // ============= 11) Render Loop =============
   function animate() {
     requestAnimationFrame(animate);
@@ -772,7 +880,71 @@ document.addEventListener('DOMContentLoaded', () => {
     renderer.render(scene, camera);
   }
   animate();
+  
+  // ============= 12) Transform Mode Buttons =============
+  // Add event listeners to switch transform modes
+  if (translateBtn) {
+    translateBtn.addEventListener('click', () => {
+      if (transformControls) transformControls.setMode('translate');
+      setActiveTransformButton('translate');
+    });
+  }
+  
+  if (rotateBtn) {
+    rotateBtn.addEventListener('click', () => {
+      if (transformControls) transformControls.setMode('rotate');
+      setActiveTransformButton('rotate');
+    });
+  }
+  
+  if (scaleBtn) {
+    scaleBtn.addEventListener('click', () => {
+      if (transformControls) transformControls.setMode('scale');
+      setActiveTransformButton('scale');
+    });
+  }
+  
+  /**
+   * Sets the active transform button based on the current mode.
+   * @param {string} mode - The current transform mode ('translate', 'rotate', 'scale').
+   */
+  function setActiveTransformButton(mode) {
+    translateBtn.classList.remove('active');
+    rotateBtn.classList.remove('active');
+    scaleBtn.classList.remove('active');
+  
+    switch (mode) {
+      case 'translate':
+        translateBtn.classList.add('active');
+        break;
+      case 'rotate':
+        rotateBtn.classList.add('active');
+        break;
+      case 'scale':
+        scaleBtn.classList.add('active');
+        break;
+    }
+  }
+  
+  // Ensure keyboard shortcuts reflect in UI buttons
+  window.addEventListener('keydown', function (event) {
+    switch (event.key) {
+      case 't':
+        if (transformControls) transformControls.setMode('translate');
+        setActiveTransformButton('translate');
+        break;
+      case 'r':
+        if (transformControls) transformControls.setMode('rotate');
+        setActiveTransformButton('rotate');
+        break;
+      case 's':
+        if (transformControls) transformControls.setMode('scale');
+        setActiveTransformButton('scale');
+        break;
+    }
+  });
 });
+
 
 
 

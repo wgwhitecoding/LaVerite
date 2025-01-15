@@ -65,12 +65,17 @@ def save_design(request):
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
+        # Validate essential fields
+        product = data.get('product', 'tshirt')
+        color = data.get('color', '#ffffff')
+        decals = data.get('decals', [])
+        texts = data.get('texts', [])
+
+        if product not in dict(Design.PRODUCT_CHOICES):
+            return JsonResponse({'error': 'Invalid product choice'}, status=400)
+
         # If user is authenticated, save to DB
         if request.user.is_authenticated:
-            product = data.get('product', 'tshirt')
-            color = data.get('color', '#ffffff')
-
-            # Create a new Design
             design = Design.objects.create(
                 user=request.user,
                 product=product,
@@ -78,45 +83,54 @@ def save_design(request):
             )
 
             # Save decals
-            decals = data.get('decals', [])
             for d in decals:
-                # Convert imageUrl to relative path if using FileField
                 image_url = d.get('imageUrl', '')
+                if not image_url:
+                    continue  # Skip decals without imageUrl
+
+                # Convert imageUrl to relative path
                 if image_url.startswith('/media/'):
                     image_relative_path = image_url.replace('/media/', '', 1)
                 else:
                     image_relative_path = image_url  # Adjust as needed
 
+                # Check if the file exists
+                if not default_storage.exists(image_relative_path):
+                    continue  # Skip if file doesn't exist
+
                 DesignDecal.objects.create(
                     design=design,
-                    image=image_relative_path,  # Assuming imageUrl starts with /media/
-                    pos_x=d['position']['x'],
-                    pos_y=d['position']['y'],
-                    pos_z=d['position']['z'],
-                    rot_x=d['rotation']['x'],
-                    rot_y=d['rotation']['y'],
-                    rot_z=d['rotation']['z'],
-                    size_x=d['size']['x'],
-                    size_y=d['size']['y'],
-                    size_z=d['size']['z']
+                    image=image_relative_path,
+                    pos_x=d.get('position', {}).get('x', 0.0),
+                    pos_y=d.get('position', {}).get('y', 0.0),
+                    pos_z=d.get('position', {}).get('z', 0.0),
+                    rot_x=d.get('rotation', {}).get('x', 0.0),
+                    rot_y=d.get('rotation', {}).get('y', 0.0),
+                    rot_z=d.get('rotation', {}).get('z', 0.0),
+                    size_x=d.get('size', {}).get('x', 0.5),
+                    size_y=d.get('size', {}).get('y', 0.5),
+                    size_z=d.get('size', {}).get('z', 0.5)
                 )
 
             # Save texts
-            texts = data.get('texts', [])
             for t in texts:
+                content = t.get('content', '')
+                if not content:
+                    continue  # Skip texts without content
+
                 DesignText.objects.create(
                     design=design,
-                    content=t.get('content', ''),
+                    content=content,
                     color=t.get('color', '#000000'),
-                    pos_x=t['position']['x'],
-                    pos_y=t['position']['y'],
-                    pos_z=t['position']['z'],
-                    rot_x=t['rotation']['x'],
-                    rot_y=t['rotation']['y'],
-                    rot_z=t['rotation']['z'],
-                    scale_x=t['scale']['x'],
-                    scale_y=t['scale']['y'],
-                    scale_z=t['scale']['z']
+                    pos_x=t.get('position', {}).get('x', 0.0),
+                    pos_y=t.get('position', {}).get('y', 0.0),
+                    pos_z=t.get('position', {}).get('z', 0.0),
+                    rot_x=t.get('rotation', {}).get('x', 0.0),
+                    rot_y=t.get('rotation', {}).get('y', 0.0),
+                    rot_z=t.get('rotation', {}).get('z', 0.0),
+                    scale_x=t.get('scale', {}).get('x', 1.0),
+                    scale_y=t.get('scale', {}).get('y', 1.0),
+                    scale_z=t.get('scale', {}).get('z', 1.0)
                 )
 
             return JsonResponse({'status': 'ok', 'design_id': design.id})
@@ -139,48 +153,51 @@ def load_design(request):
       - decals: list of decals
       - texts: list of texts
     """
-    if request.user.is_authenticated:
-        # Load the latest design by the user
-        design = Design.objects.filter(user=request.user).order_by('-created_at').first()
-        if not design:
-            return JsonResponse({'status': 'no_design', 'error': 'No design found'}, status=200)
+    if request.method == 'GET':
+        # If user is authenticated, load the latest design from DB
+        if request.user.is_authenticated:
+            design = Design.objects.filter(user=request.user).order_by('-created_at').first()
+            if not design:
+                return JsonResponse({'status': 'no_design', 'error': 'No design found'}, status=200)
 
-        # Prepare JSON data
-        data = {
-            'product': design.product,
-            'color': design.color,
-            'decals': [],
-            'texts': []
-        }
+            # Prepare JSON data
+            data = {
+                'product': design.product,
+                'color': design.color,
+                'decals': [],
+                'texts': []
+            }
 
-        for decal in design.decals.all():
-            data['decals'].append({
-                'imageUrl': decal.image.url if decal.image else '',
-                'position': {'x': decal.pos_x, 'y': decal.pos_y, 'z': decal.pos_z},
-                'rotation': {'x': decal.rot_x, 'y': decal.rot_y, 'z': decal.rot_z},
-                'size': {'x': decal.size_x, 'y': decal.size_y, 'z': decal.size_z},
-                'name': f'Decal {decal.id}'
-            })
+            for decal in design.decals.all():
+                data['decals'].append({
+                    'imageUrl': decal.image.url if decal.image else '',
+                    'position': {'x': decal.pos_x, 'y': decal.pos_y, 'z': decal.pos_z},
+                    'rotation': {'x': decal.rot_x, 'y': decal.rot_y, 'z': decal.rot_z},
+                    'size': {'x': decal.size_x, 'y': decal.size_y, 'z': decal.size_z},
+                    'name': f'Decal {decal.id}'
+                })
 
-        for text in design.texts.all():
-            data['texts'].append({
-                'content': text.content,
-                'color': text.color,
-                'position': {'x': text.pos_x, 'y': text.pos_y, 'z': text.pos_z},
-                'rotation': {'x': text.rot_x, 'y': text.rot_y, 'z': text.rot_z},
-                'scale': {'x': text.scale_x, 'y': text.scale_y, 'z': text.scale_z},
-                'name': f'Text {text.id}'
-            })
+            for text in design.texts.all():
+                data['texts'].append({
+                    'content': text.content,
+                    'color': text.color,
+                    'position': {'x': text.pos_x, 'y': text.pos_y, 'z': text.pos_z},
+                    'rotation': {'x': text.rot_x, 'y': text.rot_y, 'z': text.rot_z},
+                    'scale': {'x': text.scale_x, 'y': text.scale_y, 'z': text.scale_z},
+                    'name': f'Text {text.id}'
+                })
 
-        return JsonResponse({'status': 'ok', 'design': data}, status=200)
+            return JsonResponse({'status': 'ok', 'design': data}, status=200)
 
-    else:
-        # Anonymous user: load from session
-        temp_design = request.session.get('temp_design')
-        if not temp_design:
-            return JsonResponse({'status': 'no_design', 'error': 'No design in session'}, status=200)
+        else:
+            # Anonymous user: load from session
+            temp_design = request.session.get('temp_design')
+            if not temp_design:
+                return JsonResponse({'status': 'no_design', 'error': 'No design in session'}, status=200)
 
-        return JsonResponse({'status': 'ok', 'design': temp_design}, status=200)
+            return JsonResponse({'status': 'ok', 'design': temp_design}, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 
