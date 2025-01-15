@@ -29,6 +29,12 @@ class Design(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['user']),  # Index for faster lookups on user
+            models.Index(fields=['product']),  # Index for filtering by product
+        ]
+
     def __str__(self):
         return f"Design {self.id} by {self.user.username if self.user else 'Anon'} ({self.get_product_display()}, {self.color})"
 

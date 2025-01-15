@@ -34,13 +34,24 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tshirt',
     'django_bootstrap5',
+    'notifications', 
 ]
+
+
+SITE_ID = 1
+LOGIN_REDIRECT_URL = '/'  # Redirect to home page after login
+LOGOUT_REDIRECT_URL = '/'  # Redirect to home page after logout
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -50,7 +61,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
+
 
 ROOT_URLCONF = 'LaVérité.urls'
 
@@ -127,7 +140,6 @@ STATICFILES_DIRS = [
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 
 
 

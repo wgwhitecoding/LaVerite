@@ -9,9 +9,10 @@
   <!-- Bootstrap CSS from django_bootstrap5 -->
   {% bootstrap_css %}
   
-  <!-- Our main CSS for layout (styles.css) -->
+  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
+  <!-- Our main CSS for layout (styles.css) -->
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -24,9 +25,25 @@
     </button>
     <div id="navbarNav" class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a href="#" class="nav-link">Login</a></li>
-        <li class="nav-item"><a href="#" class="nav-link">Cart</a></li>
-        <li class="nav-item"><a href="#" class="nav-link">About</a></li>
+        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
+        <li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Create</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+              {{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#">History</a></li>
+              <li class="dropdown-item"><a href="{% url 'account_logout' %}">Logout</a></li>
+            </ul>
+          </li>
+        {% else %}
+        <li class="nav-item"><a href="{% url 'account_login' %}" class="nav-link">Login</a></li>
+
+        {% endif %}
+        <li class="nav-item">
+          <button id="themeToggle" class="btn btn-outline-light">Light/Dark</button>
+        </li>
       </ul>
     </div>
   </nav>
@@ -35,6 +52,7 @@
   <main id="mainContent">
     {% block content %}{% endblock %}
   </main>
+  <script src="{% static 'js/dark-mode.js' %}"></script>
 
   <!-- Bootstrap JS from django_bootstrap5 -->
   {% bootstrap_javascript %}

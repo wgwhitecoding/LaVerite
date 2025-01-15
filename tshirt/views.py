@@ -1,9 +1,7 @@
-# tshirt/views.py
-
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import os
@@ -11,12 +9,18 @@ import json
 
 from .models import Design, DesignDecal, DesignText
 
+def about_page(request):
+    """
+    Renders the landing/about page.
+    """
+    return render(request, 'tshirt/about.html')  # App-specific path
+
 def home(request):
     """
-    Renders the home page with the customization UI.
-    The front-end JS may call /load_design/ and /save_design/.
+    Renders the create page.
     """
-    return render(request, 'home.html')
+    return render(request, 'tshirt/home.html') 
+
 
 @csrf_exempt  # Remove this decorator in production for security
 def upload_decal(request):
@@ -198,6 +202,7 @@ def load_design(request):
             return JsonResponse({'status': 'ok', 'design': temp_design}, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 
 
