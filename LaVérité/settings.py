@@ -69,9 +69,18 @@ TEMPLATES = [
 WSGI_APPLICATION = 'LaVérité.wsgi.application'
 
 # Database Configuration
-DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
-}
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    }
+
 
 
 # Password Validation
@@ -88,10 +97,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static and Media Files
-# Static files settings
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'  # Base URL for serving static files
+STATIC_URL = '/static/'
 
 # Directories for Django to search for additional static files
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
