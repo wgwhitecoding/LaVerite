@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   camera.position.set(0, 1, 5); // Adjusted position for better visibility
   
+  // Orbit Controls
   const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
   orbitControls.enableDamping = true;
   orbitControls.dampingFactor = 0.07;
@@ -481,8 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const decalNormal = new THREE.Vector3(0, 0, 1); // Facing outward
   
       // Create orientation based on normal
-      const orientation = new THREE.Euler();
-      orientation.setFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), decalNormal));
+      const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), decalNormal);
   
       // Define decal size relative to the model size
       const decalSize = new THREE.Vector3(1, 1, 1); // Adjust as needed
@@ -491,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const decalGeom = new THREE.DecalGeometry(
         outerMesh,       // Target mesh (outer mesh)
         decalPosition,   // Position
-        orientation,     // Orientation
+        quaternion,      // Orientation
         decalSize        // Size
       );
   
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
         mesh: decalMesh,
         imageUrl: fileUrl,
         position: decalPosition,
-        rotation: orientation,
+        rotation: quaternion,
         size: decalSize,
         name: "Decal " + (decalsArray.length + 1)
       };
@@ -568,10 +568,97 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // ============= 7) Add Text =============
+  // ============= 7) Add Text as Decal =============
   /**
-   * Adds a text layer to the T-shirt.
+   * Places a text decal on the outer mesh using the provided text parameters.
+   * @param {string} text - The text to display.
+   * @param {string} color - The color of the text.
+   * @param {string} font - The font style of the text.
    */
+  function placeTextDecal(text, color, font) {
+    if (!outerMesh) {
+      console.log("No outer mesh found, can't place text decal.");
+      return;
+    }
+  
+    // Create a canvas to render the text
+    const textCanvas = document.createElement('canvas');
+    const canvasWidth = 512;
+    const canvasHeight = 256;
+    textCanvas.width = canvasWidth;
+    textCanvas.height = canvasHeight;
+    const ctx = textCanvas.getContext('2d');
+  
+    // Optional: Add a transparent background
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  
+    // Set text properties
+    ctx.fillStyle = color;
+    ctx.font = `bold 60px ${font}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
+  
+    // Create texture from canvas
+    const textTexture = new THREE.CanvasTexture(textCanvas);
+    textTexture.needsUpdate = true;
+  
+    // Define decal size relative to the model size
+    const decalSize = new THREE.Vector3(1, 0.5, 1); // Adjust as needed
+  
+    // Calculate a suitable position on the front of the T-shirt based on bounding box
+    const bbox = new THREE.Box3().setFromObject(outerMesh);
+    const center = bbox.getCenter(new THREE.Vector3());
+    const size = bbox.getSize(new THREE.Vector3());
+  
+    // Position the decal roughly at the upper front area
+    const decalPosition = new THREE.Vector3(center.x, center.y + size.y / 4, bbox.max.z + 0.1); // Slightly in front
+    const decalNormal = new THREE.Vector3(0, 0, 1); // Facing outward
+  
+    // Create orientation based on normal
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), decalNormal);
+  
+    // Create DecalGeometry
+    const decalGeom = new THREE.DecalGeometry(
+      outerMesh,       // Target mesh (outer mesh)
+      decalPosition,   // Position
+      quaternion,      // Orientation
+      decalSize        // Size
+    );
+  
+    // Create material with appropriate properties
+    const decalMat = new THREE.MeshStandardMaterial({
+      map: textTexture,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4, // Adjust to prevent z-fighting
+      polygonOffsetUnits: 1
+    });
+  
+    // Create decal mesh and add to scene
+    const decalMesh = new THREE.Mesh(decalGeom, decalMat);
+    scene.add(decalMesh);
+  
+    // Store decal information
+    const decalItem = {
+      type: 'decal',
+      mesh: decalMesh,
+      imageUrl: textCanvas.toDataURL(), // Store the data URL of the text
+      position: decalPosition,
+      rotation: quaternion,
+      size: decalSize,
+      name: "Text Decal " + (decalsArray.length + 1),
+      isText: true // Flag to identify as text decal
+    };
+    decalsArray.push(decalItem);
+    addLayerItem(decalItem);
+  
+    console.log("Text decal placed:", text);
+  }
+  
+  // Modify the Add Text button to use placeTextDecal
   addTextBtn.addEventListener('click', () => {
     const textVal = textValueInput.value.trim();
     if (!textVal) {
@@ -581,64 +668,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const tColor = textColorInput.value;
     const fontStyle = fontSelect.value;
   
-    // Create a canvas to render the text
-    const textCanvas = document.createElement('canvas');
-    textCanvas.width = 512;
-    textCanvas.height = 256;
-    const ctx = textCanvas.getContext('2d');
-    ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-    ctx.fillStyle = tColor;
-    ctx.font = `50px ${fontStyle}`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(textVal, textCanvas.width / 2, textCanvas.height / 2);
-  
-    // Create texture from canvas
-    const textTexture = new THREE.CanvasTexture(textCanvas);
-    textTexture.needsUpdate = true;
-  
-    // Create material
-    const textMat = new THREE.MeshStandardMaterial({
-      map: textTexture,
-      transparent: true,
-      depthTest: true,
-      depthWrite: false,
-      polygonOffset: true,
-      polygonOffsetFactor: -4,
-      polygonOffsetUnits: 1
-    });
-  
-    // Create geometry
-    const textGeom = new THREE.PlaneGeometry(1, 0.5); // Adjust size as needed
-  
-    // Create mesh
-    const textMesh = new THREE.Mesh(textGeom, textMat);
-    // Position the text on the front of the T-shirt
-    if (outerMesh) {
-      const bbox = new THREE.Box3().setFromObject(outerMesh);
-      const center = bbox.getCenter(new THREE.Vector3());
-      const size = bbox.getSize(new THREE.Vector3());
-  
-      // Position the text at the upper front area
-      textMesh.position.set(center.x, center.y + size.y / 4, bbox.max.z + 0.1);
-    } else {
-      textMesh.position.set(0, 1, 0.5); // Fallback position
-    }
-    scene.add(textMesh);
-  
-    // Store text information
-    const textItem = {
-      type: 'text',
-      mesh: textMesh,
-      content: textVal,
-      color: tColor,
-      font: fontStyle,
-      name: "Text " + (textArray.length + 1)
-    };
-    textArray.push(textItem);
-    addLayerItem(textItem);
-  
-    console.log("Text added:", textVal);
+    // Place text as a decal
+    placeTextDecal(textVal, tColor, fontStyle);
   });
   
   // ============= 8) Layers / Items List =============
@@ -653,21 +684,28 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Thumbnail or icon
     if (item.type === 'decal') {
-      const thumb = document.createElement('img');
-      thumb.style.width = '40px';
-      thumb.style.height = '40px';
-      thumb.style.objectFit = 'cover';
-      thumb.style.borderRadius = '4px';
-      thumb.style.marginRight = '10px';
-      thumb.src = item.imageUrl;
-      div.appendChild(thumb);
+      if (item.isText) {
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-font me-2'; // Use a font icon for text decals
+        icon.style.fontSize = '24px';
+        div.appendChild(icon);
+      } else {
+        const thumb = document.createElement('img');
+        thumb.style.width = '40px';
+        thumb.style.height = '40px';
+        thumb.style.objectFit = 'cover';
+        thumb.style.borderRadius = '4px';
+        thumb.style.marginRight = '10px';
+        thumb.src = item.imageUrl;
+        div.appendChild(thumb);
+      }
     } else if (item.type === 'text') {
       const icon = document.createElement('i');
       icon.className = 'fas fa-font me-2';
       icon.style.fontSize = '24px';
       div.appendChild(icon);
     }
-    
+  
     // Rename input
     const renameInput = document.createElement('input');
     renameInput.type = 'text';
@@ -676,14 +714,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renameInput.style.width = '120px';
     renameInput.addEventListener('change', () => {
       item.name = renameInput.value;
-      if (item.type === 'text') {
+      if (item.isText) {
         item.content = renameInput.value;
         // Update the texture if needed
-        updateTextTexture(item);
+        updateTextDecalTexture(item);
       }
     });
     div.appendChild(renameInput);
-    
+  
     // Action dropdown
     const select = document.createElement('select');
     select.className = 'form-select form-select-sm me-2';
@@ -703,18 +741,13 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (action === 'Delete') {
         if (scene.children.includes(item.mesh)) scene.remove(item.mesh);
         div.remove();
-        if (item.type === 'decal') {
-          const idx = decalsArray.indexOf(item);
-          if (idx >= 0) decalsArray.splice(idx, 1);
-        } else if (item.type === 'text') {
-          const idx = textArray.indexOf(item);
-          if (idx >= 0) textArray.splice(idx, 1);
-        }
+        const idx = decalsArray.indexOf(item);
+        if (idx >= 0) decalsArray.splice(idx, 1);
       }
       select.value = '';
     });
     div.appendChild(select);
-    
+  
     // Event listener for selecting the decal/text for editing via sidebar
     div.addEventListener('click', (event) => {
       // Prevent triggering when clicking on the select dropdown
@@ -723,46 +756,32 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       selectObject(item.mesh);
     });
-    
+  
     // Associate the mesh with the layer item for easy reference
     div.dataset.meshId = item.mesh.id;
-    
+  
     itemsList.appendChild(div);
   }
   
   /**
-   * Highlights the corresponding layer item in the sidebar when an object is selected on the canvas.
-   * @param {THREE.Mesh} selectedMesh - The selected mesh.
+   * Updates the texture of a text decal when renamed.
+   * @param {Object} item - The text decal item to update.
    */
-  function highlightLayerItem(selectedMesh) {
-    const layerItems = itemsList.querySelectorAll('.layer-item');
-    
-    layerItems.forEach(item => {
-      if (parseInt(item.dataset.meshId) === selectedMesh.id) {
-        item.classList.add('active');
-      } else {
-        item.classList.remove('active');
-      }
-    });
-  }
-  
-  /**
-   * Updates the texture of a text mesh when renamed.
-   * @param {Object} item - The text item to update.
-   */
-  function updateTextTexture(item) {
-    if (item.type !== 'text') return;
+  function updateTextDecalTexture(item) {
+    if (item.type !== 'decal' || !item.isText) return;
     const mesh = item.mesh;
     if (!mesh) return;
   
     // Create a new canvas with updated text
     const textCanvas = document.createElement('canvas');
-    textCanvas.width = 512;
-    textCanvas.height = 256;
+    const canvasWidth = 512;
+    const canvasHeight = 256;
+    textCanvas.width = canvasWidth;
+    textCanvas.height = canvasHeight;
     const ctx = textCanvas.getContext('2d');
     ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     ctx.fillStyle = item.color;
-    ctx.font = `50px ${item.font}`;
+    ctx.font = `bold 60px ${item.font}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(item.content, textCanvas.width / 2, textCanvas.height / 2);
@@ -774,6 +793,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update material
     mesh.material.map = newTexture;
     mesh.material.needsUpdate = true;
+  
+    // Update the stored imageUrl
+    item.imageUrl = textCanvas.toDataURL();
   }
   
   /**
@@ -814,21 +836,9 @@ document.addEventListener('DOMContentLoaded', () => {
         position: { x: d.mesh.position.x, y: d.mesh.position.y, z: d.mesh.position.z },
         rotation: { x: d.mesh.rotation.x, y: d.mesh.rotation.y, z: d.mesh.rotation.z },
         scale: { x: d.mesh.scale.x, y: d.mesh.scale.y, z: d.mesh.scale.z },
-        name: d.name
-      });
-    });
-    textArray.forEach(t => {
-      const pos = t.mesh.position;
-      const rot = t.mesh.rotation;
-      const scl = t.mesh.scale;
-      data.texts.push({
-        content: t.content,
-        color: t.color,
-        font: t.font,
-        position: { x: pos.x, y: pos.y, z: pos.z },
-        rotation: { x: rot.x, y: rot.y, z: rot.z },
-        scale: { x: scl.x, y: scl.y, z: scl.z },
-        name: t.name
+        name: d.name,
+        isText: d.isText || false,
+        font: d.isText ? d.font : null
       });
     });
     return data;
@@ -904,28 +914,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  /**
-   * Sets the active transform button based on the current mode.
-   * @param {string} mode - The current transform mode ('translate', 'rotate', 'scale').
-   */
-  function setActiveTransformButton(mode) {
-    translateBtn.classList.remove('active');
-    rotateBtn.classList.remove('active');
-    scaleBtn.classList.remove('active');
-  
-    switch (mode) {
-      case 'translate':
-        translateBtn.classList.add('active');
-        break;
-      case 'rotate':
-        rotateBtn.classList.add('active');
-        break;
-      case 'scale':
-        scaleBtn.classList.add('active');
-        break;
-    }
-  }
-  
   // Ensure keyboard shortcuts reflect in UI buttons
   window.addEventListener('keydown', function (event) {
     switch (event.key) {
@@ -943,7 +931,94 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
     }
   });
+  
+  // ============= 13) Text Decal Helper Function =============
+  /**
+   * Places a text decal at a specific point with a given normal.
+   * This function can be extended for interactive decal placement.
+   * @param {string} text - The text to display.
+   * @param {string} color - The color of the text.
+   * @param {string} font - The font style of the text.
+   * @param {THREE.Vector3} position - The position to place the decal.
+   * @param {THREE.Vector3} normal - The normal vector for decal orientation.
+   */
+  function placeTextDecalAtPoint(text, color, font, position, normal) {
+    if (!outerMesh) {
+      console.log("No outer mesh found, can't place text decal.");
+      return;
+    }
+  
+    // Create a canvas to render the text
+    const textCanvas = document.createElement('canvas');
+    const canvasWidth = 512;
+    const canvasHeight = 256;
+    textCanvas.width = canvasWidth;
+    textCanvas.height = canvasHeight;
+    const ctx = textCanvas.getContext('2d');
+  
+    // Optional: Add a transparent background
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  
+    // Set text properties
+    ctx.fillStyle = color;
+    ctx.font = `bold 60px ${font}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvasWidth / 2, canvasHeight / 2);
+  
+    // Create texture from canvas
+    const textTexture = new THREE.CanvasTexture(textCanvas);
+    textTexture.needsUpdate = true;
+  
+    // Define decal size relative to the model size
+    const decalSize = new THREE.Vector3(1, 0.5, 1); // Adjust as needed
+  
+    // Create orientation based on normal
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+  
+    // Create DecalGeometry
+    const decalGeom = new THREE.DecalGeometry(
+      outerMesh,       // Target mesh (outer mesh)
+      position,        // Position
+      quaternion,      // Orientation
+      decalSize        // Size
+    );
+  
+    // Create material with appropriate properties
+    const decalMat = new THREE.MeshStandardMaterial({
+      map: textTexture,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: -4, // Adjust to prevent z-fighting
+      polygonOffsetUnits: 1
+    });
+  
+    // Create decal mesh and add to scene
+    const decalMesh = new THREE.Mesh(decalGeom, decalMat);
+    scene.add(decalMesh);
+  
+    // Store decal information
+    const decalItem = {
+      type: 'decal',
+      mesh: decalMesh,
+      imageUrl: textCanvas.toDataURL(), // Store the data URL of the text
+      position: position,
+      rotation: quaternion,
+      size: decalSize,
+      name: "Text Decal " + (decalsArray.length + 1),
+      isText: true, // Flag to identify as text decal
+      font: font
+    };
+    decalsArray.push(decalItem);
+    addLayerItem(decalItem);
+  
+    console.log("Text decal placed at:", position);
+  }
+  
 });
+
 
 
 
