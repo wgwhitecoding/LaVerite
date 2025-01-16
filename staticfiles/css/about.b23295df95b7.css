@@ -1,0 +1,110 @@
+/* Scoped Styles for About Page */
+.about-page {
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #ffffff, #f7f7f7);
+  }
+  
+  /* Hero Section */
+  .about-page .hero {
+    background: url('') no-repeat center center/cover;
+    color: white;
+    padding: 100px 20px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    animation: fadeIn 2s ease-out;
+  }
+  
+  .about-page .hero-heading {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+  }
+  
+  .about-page .hero-heading span {
+    color: #ff6b6b;
+  }
+  
+  .about-page .hero-description {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .about-page .hero-button {
+    background-color: #ff6b6b;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .about-page .hero-button:hover {
+    background-color: #ff3f3f;
+    transform: scale(1.1);
+  }
+  
+  /* Features Section */
+  .about-page .features-section {
+    margin: 50px 0;
+  }
+  
+  .about-page .features-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .about-page .features {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 30px;
+  }
+  
+  .about-page .feature {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .about-page .feature:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .about-page .icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #ff6b6b;
+  }
+  
+  .about-page .feature h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .about-page .feature p {
+    font-size: 1rem;
+    color: #666;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

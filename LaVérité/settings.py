@@ -90,10 +90,18 @@ USE_TZ = True
 
 # Static and Media Files
 # Static files settings
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Folder where you store your static files
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')   # Folder where static files will be collected
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'  # Base URL for serving static files
+
+# Directories for Django to search for additional static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+# Directory where collected static files will be stored (used by collectstatic)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Use WhiteNoise for serving static files in production
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # Media files settings
 MEDIA_URL = '/media/'

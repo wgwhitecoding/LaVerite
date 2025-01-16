@@ -1,0 +1,426 @@
+/* static/css/styles.css */
+
+/* 1. Universal Box Sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* 2. Make the entire page fill the browser, allow vertical/horizontal usage */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  /* overflow: hidden; if you never want scrollbars, else omit */
+}
+
+/* 3. Body Flex Layout */
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Ensure body takes full viewport height */
+}
+
+/* 4. Main Content Area */
+main#mainContent {
+  flex: 1 1 auto;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevent scrollbars on main content */
+}
+
+/* 5. Container Flex Layout */
+.container-flex {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+/* 6. Left Sidebar Styling */
+.side-panel {
+  width: 300px;
+  background: #fff;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  padding: 1rem; /* Added padding for content spacing */
+  /* Add a subtle shadow and a slight rounding on the right edge */
+  border-radius: 0px 10px 10px 0px;
+}
+
+.side-panel.shadow-sm {
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+/* 7. Title Style in Each Section */
+.section-title {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  color: #333;
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 0.3rem;
+}
+
+/* 8. Product Thumbnails Container */
+.product-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.product-btn {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.product-btn:hover {
+  transform: scale(1.06);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+/* 9. Color Button Styling */
+.color-btn {
+  width: 100%;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.color-btn:hover {
+  transform: scale(1.07);
+  border-color: #999;
+}
+
+/* 10. Canvas Container (Main Area) */
+.canvas-container {
+  flex: 1;
+  position: relative;
+  background: #f5f5f5; 
+  overflow: hidden; /* Prevent content overflow */
+}
+
+/* 11. The Actual T-shirt Canvas */
+#tshirtCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #ffffff;
+}
+
+/* 12. Input Group Label Icon for Upload */
+.input-group-text {
+  cursor: pointer;
+  border-radius: 4px 0 0 4px;
+}
+
+/* 13. Items / Layers Box Styling */
+#itemsList {
+  min-height: 80px;
+  max-height: 120px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 0.5rem;
+  overflow-y: auto;
+}
+
+/* 14. Save Button Style Override */
+#saveDesignBtn {
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  transition: box-shadow 0.2s ease;
+}
+
+#saveDesignBtn:hover {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* 15. Transform Mode Buttons Styling */
+#transformModeControls .btn {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+#transformModeControls .btn.active {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* 16. Right Sidebar Styling */
+.right-panel {
+  width: 300px;
+  background: #f8f9fa;
+  border-left: 1px solid #ddd;
+  overflow-y: auto;
+  padding: 1rem;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+}
+
+/* Layers Section in Right Sidebar */
+.right-panel .layers-section {
+  margin-bottom: 2rem;
+}
+
+.right-panel .layers-section h5 {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  color: #333;
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 0.3rem;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-bottom: 0.5rem;
+}
+
+.layer-item:hover {
+  background-color: #e2e6ea;
+}
+
+.layer-item.active {
+  background-color: #d1e7dd;
+}
+
+.layer-item img, .layer-item i {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+.layer-item input[type="text"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.layer-item input[type="text"]:focus {
+  outline: none;
+  border-bottom: 1px solid #0d6efd;
+}
+
+.layer-item select {
+  margin-left: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  padding: 2px 5px;
+  font-size: 0.8rem;
+}
+
+/* Transform Tools Section in Right Sidebar */
+.right-panel .transform-tools-section {
+  margin-bottom: 2rem;
+}
+
+.right-panel .transform-tools-section h5 {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  color: #333;
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 0.3rem;
+}
+
+.transform-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.transform-tools .btn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.transform-tools .btn.active, 
+.transform-tools .btn:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+/* Real-time Adjustment Sliders */
+.adjustments-section {
+  margin-bottom: 2rem;
+}
+
+.adjustments-section h5 {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+  color: #333;
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 0.3rem;
+}
+
+.adjustment-group {
+  margin-bottom: 1rem;
+}
+
+.adjustment-group label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  display: block;
+  color: #333;
+}
+
+.adjustment-group input[type="range"] {
+  width: 100%;
+}
+/* Base dark theme styles */
+body.dark-theme {
+  background-color: #121212 !important; /* Dark background for the entire body */
+  color: #e0e0e0 !important; /* Light text for readability */
+}
+
+/* Navbar styling in dark mode */
+body.dark-theme .navbar {
+  background-color: #1f1f1f !important; /* Dark navbar background */
+  border-bottom: 1px solid #333 !important;
+}
+
+/* Side panels (left and right) */
+body.dark-theme .side-panel, 
+body.dark-theme .right-panel {
+  background-color: #1f1f1f !important; /* Dark panels background */
+  color: #e0e0e0 !important; /* Light text */
+  border-color: #333 !important;
+}
+
+/* Canvas container */
+body.dark-theme .canvas-container {
+  background-color: #d3d3d3 !important; /* Light gray canvas */
+  border-color: #ccc !important; /* Adjust border if necessary */
+}
+
+/* Table styling for dark mode */
+body.dark-theme .table {
+  background-color: #1f1f1f !important; /* Dark table background */
+  color: #e0e0e0 !important; /* Light text color */
+  border-color: #333 !important;
+}
+
+body.dark-theme .table th, 
+body.dark-theme .table td {
+  color: #e0e0e0 !important; /* Ensure table text is light */
+}
+
+/* Button styling */
+body.dark-theme .btn {
+  background-color: #333 !important; /* Dark button background */
+  color: #e0e0e0 !important; /* Light button text */
+}
+
+body.dark-theme .btn:hover {
+  background-color: #444 !important; /* Slightly lighter on hover */
+}
+
+/* Layers section in right panel */
+body.dark-theme .layer-item {
+  background-color: #1f1f1f !important; /* Dark layer item background */
+  color: #e0e0e0 !important; /* Light text */
+}
+
+body.dark-theme .layer-item:hover {
+  background-color: #333 !important; /* Highlight layer item on hover */
+}
+
+/* Transform tools section */
+body.dark-theme .transform-tools .btn {
+  background-color: #333 !important; /* Dark button */
+  color: #e0e0e0 !important; /* Light text */
+}
+
+body.dark-theme .transform-tools .btn.active {
+  background-color: #444 !important; /* Highlight active tool */
+}
+
+/* Real-time adjustment sliders */
+body.dark-theme .adjustments-section label {
+  color: #e0e0e0 !important; /* Light text for labels */
+}
+
+/* Ensure the sun icon remains white */
+body.dark-theme #themeIcon {
+  color: #fff !important;
+}
+/* Default styles */
+/* Default styles */
+.canvas-container {
+  background-color: #ffffff; /* Light mode - white */
+  transition: background-color 0.3s ease;
+}
+
+/* Dark mode styles */
+body.dark-mode .canvas-container {
+  background-color: #d3d3d3 !important; /* Dark mode - light gray */
+}
+
+/* Text colors */
+body.dark-mode {
+  color: #ffffff; /* Global text color for dark mode */
+  background-color: #121212; /* Global background color for dark mode */
+}
+
+
+
+
+/* 17. Responsive Adjustments */
+@media (max-width: 1200px) {
+  .side-panel, .right-panel {
+    width: 250px; /* Reduce width on medium screens */
+  }
+}
+
+@media (max-width: 992px) {
+  .side-panel, .right-panel {
+    width: 220px; /* Further reduce width on small screens */
+  }
+}
+
+@media (max-width: 768px) {
+  .side-panel, .right-panel {
+    width: 200px; /* Even smaller width on extra small screens */
+  }
+  
+  .right-panel {
+    display: none; /* Hide Right Sidebar on very small screens */
+  }
+  
+  .container-flex {
+    flex-direction: column; /* Stack elements vertically */
+  }
+  
+  .canvas-container {
+    height: 70vh; /* Adjust canvas height when sidebars are stacked */
+  }
+}
+
+  

@@ -1,7 +1,38 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-  <h1>About LaVérité</h1>
-  <p>Welcome to LaVérité! Here you can design and customise amazing apparel.</p>
+
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<div class="about-page">
+  <div class="hero">
+    <h1 class="hero-heading">Welcome to <span>LaVérité</span></h1>
+    <p class="hero-description">
+      Dive into the world of fully customisable, high-quality apparel. Express your creativity by adding your own prints, text, fonts, colours, and more. Ethical printing and premium fabrics await you!
+    </p>
+    <a href="#explore" class="hero-button">Explore Now</a>
+  </div>
+
+  <div id="explore" class="features-section">
+    <h2>Why Choose LaVérité?</h2>
+    <div class="features">
+      <div class="feature">
+        <i class="icon fa-solid fa-tshirt"></i>
+        <h3>High-Quality Fabrics</h3>
+        <p>Experience the best materials designed for comfort and durability.</p>
+      </div>
+      <div class="feature">
+        <i class="icon fa-solid fa-paint-brush"></i>
+        <h3>Endless Creativity</h3>
+        <p>Customise with unique prints, vibrant colours, and stylish fonts.</p>
+      </div>
+      <div class="feature">
+        <i class="icon fa-solid fa-seedling"></i>
+        <h3>Ethical & Sustainable</h3>
+        <p>We prioritise eco-friendly processes and ethical practices.</p>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
+
 
