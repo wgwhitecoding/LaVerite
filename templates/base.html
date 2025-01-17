@@ -26,7 +26,7 @@
   <!-- Navbar at top -->
   <nav class="navbar navbar-expand-lg px-3">
     <a class="navbar-brand fade-in-drop" href="{% url 'home' %}" style="animation-delay: 0.2s;">LaVérité</a>
-    <button class="navbar-toggler fade-in-drop" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="animation-delay: 0.4s;">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div id="navbarNav" class="collapse navbar-collapse">
@@ -52,7 +52,7 @@
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
               {{ user.username }}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <ul class="dropdown-menu dropdown-menu-start" aria-labelledby="userDropdown">
               <li><a class="dropdown-item" href="#">History</a></li>
               <li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
             </ul>
@@ -91,6 +91,7 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
+
 
 
 

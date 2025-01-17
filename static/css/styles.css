@@ -31,22 +31,140 @@ main#mainContent {
   overflow: hidden; /* Ensure content stays within bounds */
 }
 
-/* Container Flex Layout */
 .container-flex {
   display: flex;
   flex: 1;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Keep overall layout controlled */
-  position: relative; /* Ensure child elements like dropdowns are positioned correctly */
+  overflow: visible !important; /* Ensure dropdown is not clipped */
+  position: relative !important; /* Establish a positioning context */
+  z-index: 0 !important; /* Push the container to the back */
 }
 
-/* Ensure dropdown menus can escape overflow boundaries */
+/* Navbar Styling */
+.navbar {
+  background-color: #ffe74c !important;
+  padding: 1rem;
+  height: 45px;
+  z-index: 10;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link,
+.navbar-toggler-icon,
+.badge {
+  color: #000; /* Black text and icons for light mode */
+}
+
+/* Dropdown Menu */
 .navbar .dropdown-menu {
-  position: absolute; /* Allow it to break out of parent container */
-  z-index: 1050; /* Make sure it's above other elements */
+  background-color: #ffe74c; /* Yellow dropdown background */
+  border: none;
+  position: absolute !important; /* Allow it to break out of parent container */
+  z-index: 20 !important; /* Make sure it's above other elements */
 }
 
+.navbar .dropdown-menu .dropdown-item {
+  color: #000 !important; /* Black text for dropdown items */
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+  background-color: #ffd700 !important; 
+  color: #000 !important;
+}
+
+/* Navbar Toggler (Small Screens) */
+.navbar-toggler {
+  position: relative;
+  z-index: 1040 !important; /* Ensure it appears above other elements */
+  border: none;
+  background-color: transparent; /* Remove default styles */
+}
+
+.navbar-toggler-icon {
+  background-color: #ffe74c; /* Yellow background for the icon */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-toggler-icon::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 3px;
+  background-color: #000;
+  margin: 3px 0;
+}
+
+.navbar-toggler-icon::after {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 3px;
+  background-color: #000;
+  margin: 3px 0;
+}
+
+/* Navbar Collapse for Small Screens */
+.navbar-collapse {
+  position: absolute;
+  top: 100%; /* Position dropdown directly below the navbar */
+  left: 0; /* Align dropdown to the left */
+  width: 100%;
+  background-color: #ffe74c; /* Yellow background */
+  z-index: 1050; /* Ensure it appears above other elements */
+  transition: all 0.3s ease-in-out; /* Smooth appearance */
+}
+
+.navbar-collapse.show {
+  display: block !important;
+}
+
+.navbar-nav {
+  display: flex;
+  flex-direction: column; /* Stack menu items vertically */
+  align-items: flex-start; /* Align items to the left */
+  padding: 1rem;
+}
+
+.nav-link {
+  color: #000; /* Black text for links */
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+  width: 100%; /* Full width for clickable area */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #ffd700; /* Slightly darker yellow on hover */
+  color: #000;
+}
+
+/* Dropdown Fade-In Animation for Normal Screens */
+@media (min-width: 992px) {
+  .navbar-collapse {
+    background-color: transparent !important; /* Remove background for larger screens */
+    position: static;
+    width: auto;
+    transition: none; /* Disable animation for normal screens */
+  }
+
+  .nav-item {
+    display: inline-block; /* Inline for larger screens */
+  }
+
+  .nav-link {
+    padding: 0.5rem 1rem;
+  }
+
+  .navbar-toggler {
+    display: none; /* Hide toggler on larger screens */
+  }
+}
 
 /* Left Sidebar Styling */
 .side-panel {
@@ -267,6 +385,8 @@ main#mainContent {
 #themeToggle i:hover {
   color: #555;
 }
+
+
 
 
 
