@@ -1,31 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
+
+{% block title %}About Us - LaVérité{% endblock %}
+
 {% block content %}
-
-<div class="split-page container-fluid vh-100 d-flex flex-column">
-  <!-- Top Section -->
-  <div class="left-section d-flex flex-column justify-content-between align-items-center flex-grow-1">
-    <div class="header-container">
-      <h1 class="lav-header fade-in" style="animation-delay: 1.6s;">LaVérité</h1>
-      <h3 class="lav-subheader">
-        <span class="fade-in" style="animation-delay: 4s;">Creative</span>
-        <span class="square-bullet fade-in" style="animation-delay: 6s;"></span>
-        <span class="fade-in" style="animation-delay: 4.5s;">Sustainable</span>
-        <span class="square-bullet fade-in" style="animation-delay: 6s;"></span>
-        <span class="fade-in" style="animation-delay: 5s;">Ethical</span>
-        <span class="square-bullet fade-in" style="animation-delay: 6s;"></span>
-        <span class="fade-in" style="animation-delay: 5.5s;">Apparel</span>
-      </h3>      
-    </div>
-    <a href="{% url 'home' %}" class="btn btn-black-yellow fade-in" style="animation-delay: 2s;">Create</a>
-  </div>
-
-  <!-- Bottom Section -->
-  <div class="right-section d-flex flex-column justify-content-start align-items-center flex-grow-1">
-    <a href="{% url 'account_login' %}" class="btn btn-yellow-black fade-in" style="animation-delay: 2.2s;">Login</a>
-  </div>
+<div class="container mt-5">
+    <h1>About LaVérité</h1>
+    <p>Welcome to LaVérité, where we specialize in creating customized apparel that expresses your unique style. Our mission is to provide high-quality products that allow you to showcase your creativity.</p>
+    
+    <h2>Our Story</h2>
+    <p>Founded in [Year], LaVérité has grown from a small startup to a leading name in the custom apparel industry. Our passion for design and commitment to excellence drives us to continuously innovate and exceed customer expectations.</p>
+    
+    <h2>Meet the Team</h2>
+    <p>Our dedicated team of designers, developers, and customer service professionals work tirelessly to bring your ideas to life. We believe in collaboration, creativity, and delivering exceptional results.</p>
+    
+    <h2>Contact Us</h2>
+    <p>If you have any questions or need assistance, feel free to reach out to us at <a href="mailto:contact@laverté.com">contact@laverté.com</a>.</p>
 </div>
-
 {% endblock %}
 
 

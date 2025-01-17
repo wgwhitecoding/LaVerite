@@ -1,34 +1,34 @@
+# your_app/views.py
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
 from django.db.models import Sum
-from .models import Cart, CartItem, Design
+from .models import Cart, CartItem, Design, DesignDecal, DesignText
 import os
 import json
+import imghdr
 
-from .models import Design, DesignDecal, DesignText
+def home_page(request):
+    """
+    Renders the new landing/home page.
+    """
+    return render(request, 'tshirt/home.html')  # Ensure 'tshirt/home.html' exists
 
 def about_page(request):
     """
-    Renders the landing/about page.
+    Renders the About Us page with new content.
     """
-    return render(request, 'tshirt/about.html')  # App-specific path
+    return render(request, 'tshirt/about.html')  # Ensure 'tshirt/about.html' exists
 
-def home(request):
+def create_page(request):
     """
-    Renders the create page.
+    Renders the Create Design page (T-Shirt Customization).
     """
-    return render(request, 'tshirt/home.html') 
-
+    return render(request, 'tshirt/create.html')  # Ensure 'tshirt/create.html' exists
 
 def view_cart(request):
     """
@@ -42,6 +42,7 @@ def view_cart(request):
         session_id = request.session.session_key
         if not session_id:
             request.session.create()
+            session_id = request.session.session_key
         cart, created = Cart.objects.get_or_create(session_id=session_id)
 
     # Fetch all items in the cart
@@ -65,7 +66,6 @@ def view_cart(request):
         "cart_item_count": cart_item_count,
     })
 
-
 def add_to_cart(request, design_id):
     """
     Adds a design to the cart. Creates a cart if it doesn't exist.
@@ -78,20 +78,20 @@ def add_to_cart(request, design_id):
         session_id = request.session.session_key
         if not session_id:
             request.session.create()
+            session_id = request.session.session_key
         cart, created = Cart.objects.get_or_create(session_id=session_id)
 
     # Add the item to the cart or increment quantity
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=design.name,  # Assuming `Design` has a `name` field
-        price=design.price  # Assuming `Design` has a `price` field
+        price=design.price    # Assuming `Design` has a `price` field
     )
     if not created:
         cart_item.quantity += 1
     cart_item.save()
 
     return redirect("view_cart")
-
 
 def remove_from_cart(request, item_id):
     """
@@ -111,7 +111,6 @@ def remove_from_cart(request, item_id):
 
     return redirect("view_cart")
 
-
 @login_required
 def checkout(request):
     """
@@ -121,12 +120,12 @@ def checkout(request):
     if not cart or not cart.items.exists():
         return redirect("view_cart")
 
-    # Checkout logic here (e.g., process payment)
+    # TODO: Implement actual checkout logic (e.g., payment processing)
     # For simplicity, we assume the checkout is successful
+
     cart.items.all().delete()  # Clear cart after checkout
 
     return render(request, "tshirt/checkout.html", {"cart": cart})
-
 
 def get_cart_item_count(request):
     """
@@ -138,12 +137,12 @@ def get_cart_item_count(request):
         session_id = request.session.session_key
         if not session_id:
             request.session.create()
-        cart = Cart.objects.filter(session_id=request.session.session_key).first()
+            session_id = request.session.session_key
+        cart = Cart.objects.filter(session_id=session_id).first()
 
     if cart:
         return cart.items.aggregate(total_items=Sum('quantity'))['total_items'] or 0
     return 0
-
 
 @csrf_exempt  # Remove this decorator in production for security
 def upload_decal(request):
@@ -157,7 +156,6 @@ def upload_decal(request):
             return JsonResponse({'error': 'No file uploaded'}, status=400)
 
         # Validate file type
-        import imghdr
         file_type = imghdr.what(file_obj)
         if file_type not in ['jpeg', 'png', 'gif', 'bmp']:
             return JsonResponse({'error': 'Invalid file type'}, status=400)
@@ -325,6 +323,7 @@ def load_design(request):
             return JsonResponse({'status': 'ok', 'design': temp_design}, status=200)
 
     return JsonResponse({'error': 'Invalid request method'}, status=400)
+
 
 
 

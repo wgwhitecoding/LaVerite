@@ -1,209 +1,78 @@
 {% extends 'base.html' %}
 {% load static %}
-
-{% block title %}Home - T-Shirt Customisation{% endblock %}
-
 {% block content %}
-<!-- Main Container -->
-<main id="mainContent" class="flex-grow-1">
-  <div class="container-flex">
+
+<div class="split-page container-fluid vh-100 d-flex flex-column">
+  <!-- Top Section -->
+  <div class="left-section d-flex flex-column justify-content-between align-items-center flex-grow-1">
+    <div class="header-container">
+      <h1 class="lav-header fade-in" style="animation-delay: 1.6s;">LaVérité</h1>
+      <h3 class="lav-subheader">
+        <span class="fade-in-drop" style="animation-delay: 2.0s;">Creative</span>
+        <span class="square-bullet fade-in" style="animation-delay: 5s;"></span>
+        <span class="fade-in-drop" style="animation-delay: 2.5s;">Sustainable</span>
+        <span class="square-bullet fade-in" style="animation-delay: 5s;"></span>
+        <span class="fade-in-drop" style="animation-delay: 3.0s;">Ethical</span>
+        <span class="square-bullet fade-in" style="animation-delay: 5s;"></span>
+        <span class="fade-in-drop" style="animation-delay: 3.5s;">Apparel</span>
+      </h3>           
+    </div>
+    <a href="{% url 'home' %}" class="btn btn-black-yellow fade-in" style="animation-delay: 2s;">Create</a>
+  </div>
+
+  <!-- Bottom Section -->
+  <div class="right-section d-flex flex-column justify-content-start align-items-center flex-grow-1">
+    <a href="{% url 'account_login' %}" class="btn btn-yellow-black fade-in" style="animation-delay: 2.2s;">Login</a>
     
-    <!-- Left Sidebar: Product Selection, Color Selection, Decal Upload, Add Text, Save Design -->
-    <div class="side-panel p-3 shadow-sm bg-light">
-      <!-- Product Section -->
-      <h4 class="section-title">
-        <i class="fas fa-tshirt me-2"></i>Pick Product
-      </h4>
-      <div class="product-thumbnails-container d-flex flex-wrap gap-2 mb-4">
-        <!-- Example local image for T-Shirt icon -->
-        <img
-          src="/static/images/Screenshot 2025-01-14 at 18.09.59.png"
-          class="product-btn"
-          data-model="Tshirt.glb"
-          alt="T-Shirt"
-        >
-        <img
-          src="https://via.placeholder.com/60x60?text=Baggy"
-          class="product-btn"
-          data-model="Baggy.glb"
-          alt="Baggy"
-        >
-        <img
-          src="https://via.placeholder.com/60x60?text=Hoodie"
-          class="product-btn"
-          data-model="Hoodie.glb"
-          alt="Hoodie"
-        >
-        <img
-          src="https://via.placeholder.com/60x60?text=Jumper"
-          class="product-btn"
-          data-model="Jumper.glb"
-          alt="Jumper"
-        >
-      </div>
+    <!-- Info Boxes Section -->
+    <div class="info-boxes container mt-4 fade-in" style="animation-delay: 2.5s;">
+      <div class="row g-4">
+        <!-- Box 1 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="info-box d-flex flex-column align-items-center">
+            <img src="{% static 'images/creativity.jpg' %}" alt="Creativity" class="info-image">
+            <h4 class="info-title">Creativity</h4>
+            <p class="info-description">Unleash your imagination with endless customisation options.</p>
+            <a href="{% url 'about' %}" class="btn btn-learn-more mt-auto">Learn More</a>
+          </div>
+        </div>
 
-      <!-- Color Section -->
-      <h4 class="section-title">
-        <i class="fas fa-palette me-2"></i>Color
-      </h4>
-      <div class="row row-cols-5 g-2 mb-3">
-        <div class="col">
-          <button class="color-btn" data-color="#ffffff" style="background-color:#ffffff;"></button>
+        <!-- Box 2 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="info-box d-flex flex-column align-items-center">
+            <img src="{% static 'images/sustainablity.jpg' %}" alt="Sustainability" class="info-image">
+            <h4 class="info-title">Sustainability</h4>
+            <p class="info-description">Crafted with eco-friendly processes and materials.</p>
+            <a href="{% url 'about' %}" class="btn btn-learn-more mt-auto">Learn More</a>
+          </div>
         </div>
-        <div class="col">
-          <button class="color-btn" data-color="#000000" style="background-color:#000000;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#ff0000" style="background-color:#ff0000;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#00ff00" style="background-color:#00ff00;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#0000ff" style="background-color:#0000ff;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#ff9900" style="background-color:#ff9900;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#ff00ff" style="background-color:#ff00ff;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#00ffff" style="background-color:#00ffff;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#808080" style="background-color:#808080;"></button>
-        </div>
-        <div class="col">
-          <button class="color-btn" data-color="#ffaec9" style="background-color:#ffaec9;"></button>
-        </div>
-      </div>
-      <label for="customColor" class="form-label">
-        <i class="fas fa-eyedropper me-1"></i>Custom Color:
-      </label>
-      <input type="color" id="customColor" value="#ffffff" class="form-control form-control-color mb-4">
 
-      <!-- File Upload (Decal) -->
-      <h4 class="section-title">
-        <i class="fas fa-upload me-2"></i>ADD PRINT
-      </h4>
-      <p class="small mb-2">1) Upload an image<br>2) Click on the 3D product to place</p>
-      <div class="input-group mb-4">
-        <label class="input-group-text bg-primary text-white" for="uploadImage">
-          <i class="fas fa-file-image"></i>
-        </label>
-        <input type="file" id="uploadImage" accept="image/*" class="form-control">
-        <button id="uploadFileBtn" class="btn btn-primary">Upload File</button>
-      </div>
-      
-      <!-- Add Text Section -->
-      <h4 class="section-title">
-        <i class="fas fa-font me-2"></i>Add Text
-      </h4>
-      <div class="mb-2">
-        <input type="text" id="textValue" placeholder="Enter text" class="form-control mb-2">
-        <label class="form-label">Font Style:</label>
-        <select id="fontSelect" class="form-select mb-2">
-          <option value="Arial" selected>Arial</option>
-          <option value="Verdana">Verdana</option>
-          <option value="Georgia">Georgia</option>
-          <option value="Courier New">Courier New</option>
-          <option value="Times New Roman">Times New Roman</option>
-        </select>
-        <label class="form-label">Font Color:</label>
-        <input type="color" id="textColor" value="#000000" class="form-control form-control-color mb-2">
-      </div>
-      <button id="addTextBtn" class="btn btn-secondary btn-sm mb-4">
-        <i class="fas fa-plus me-1"></i>Add Text
-      </button>
+        <!-- Box 3 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="info-box d-flex flex-column align-items-center">
+            <img src="{% static 'images/ethics.png' %}" alt="Ethics" class="info-image">
+            <h4 class="info-title">Ethics</h4>
+            <p class="info-description">Dedicated to ethical practices for people and the planet.</p>
+            <a href="{% url 'about' %}" class="btn btn-learn-more mt-auto">Learn More</a>
+          </div>
+        </div>
 
-      <!-- Save Design -->
-      <button id="saveDesignBtn" class="btn btn-primary w-100">
-        <i class="fas fa-save me-2"></i>Save Design
-      </button>
-    </div>
-
-    <!-- Main Canvas Area -->
-    <div class="canvas-container flex-grow-1 position-relative">
-      <canvas id="tshirtCanvas"></canvas>
-    </div>
-
-    <!-- Right Sidebar: Layers and Transform Tools -->
-    <div class="right-panel p-3 shadow-sm bg-light">
-      <!-- Layers Section -->
-      <div class="layers-section mb-4">
-        <h5>Layers</h5>
-        <div id="itemsList">
-          <!-- Dynamically populated layer items will appear here -->
-        </div>
-      </div>
-
-      <!-- Transform Tools Section -->
-      <div class="transform-tools-section mb-4">
-        <h5>Transform Tools</h5>
-        <div class="transform-tools">
-          <button id="translateBtn" class="btn btn-outline-secondary btn-sm">Translate (T)</button>
-          <button id="rotateBtn" class="btn btn-outline-secondary btn-sm">Rotate (R)</button>
-          <button id="scaleBtn" class="btn btn-outline-secondary btn-sm">Scale (S)</button>
-        </div>
-      </div>
-
-      <!-- Real-time Adjustment Sliders -->
-      <div class="adjustments-section">
-        <h5>Adjustments</h5>
-        
-        <!-- Position Sliders -->
-        <div class="adjustment-group mb-3">
-          <label for="positionX">Position X</label>
-          <input type="range" class="form-range" id="positionX" min="-5" max="5" step="0.1">
-        </div>
-        <div class="adjustment-group mb-3">
-          <label for="positionY">Position Y</label>
-          <input type="range" class="form-range" id="positionY" min="-5" max="5" step="0.1">
-        </div>
-        <div class="adjustment-group mb-3">
-          <label for="positionZ">Position Z</label>
-          <input type="range" class="form-range" id="positionZ" min="-5" max="5" step="0.1">
-        </div>
-        
-        <!-- Rotation Sliders -->
-        <div class="adjustment-group mb-3">
-          <label for="rotationX">Rotation X</label>
-          <input type="range" class="form-range" id="rotationX" min="0" max="6.283" step="0.01"> 
-        </div>
-        <div class="adjustment-group mb-3">
-          <label for="rotationY">Rotation Y</label>
-          <input type="range" class="form-range" id="rotationY" min="0" max="6.283" step="0.01">
-        </div>
-        <div class="adjustment-group mb-3">
-          <label for="rotationZ">Rotation Z</label>
-          <input type="range" class="form-range" id="rotationZ" min="0" max="6.283" step="0.01">
-        </div>
-        
-        <!-- Scale Slider -->
-        <div class="adjustment-group mb-3">
-          <label for="scaleUniform">Scale</label>
-          <input type="range" class="form-range" id="scaleUniform" min="0.1" max="5" step="0.1">
+        <!-- Box 4 -->
+        <div class="col-md-6 col-lg-3">
+          <div class="info-box d-flex flex-column align-items-center">
+            <img src="{% static 'images/fashion.png' %}" alt="Fashion" class="info-image">
+            <h4 class="info-title">Fashion</h4>
+            <p class="info-description">Stay stylish with designs that reflect your unique personality.</p>
+            <a href="{% url 'about' %}" class="btn btn-learn-more mt-auto">Learn More</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</main>
+</div>
+
 {% endblock %}
 
-{% block scripts %}
-<!-- Three.js + DecalGeometry + OrbitControls + TransformControls -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r110/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.110.0/examples/js/controls/OrbitControls.js"></script>
-<script src="https://unpkg.com/three@0.152.2/examples/js/controls/TransformControls.js"></script>
-
-<!-- DecalGeometry Script -->
-<script src="{% static 'js/DecalGeometry.js' %}"></script>
-
-<!-- Your main JavaScript file -->
-<script src="{% static 'js/tshirt.js' %}"></script>
-{% endblock %}
 
 
 

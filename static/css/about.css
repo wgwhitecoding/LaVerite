@@ -13,21 +13,23 @@
 
 /* Background Colors */
 .left-section {
-  background-color: #ffe74c; /* Yellow background for light mode */
+  background-color: #ffe74c;
+  height: 40%;
 }
 
 .right-section {
-  background-color: #f7caca; /* Pink background for light mode */
+  background-color: #f7caca; 
+  height: 60%;
 }
 
 /* Header Styling */
 .lav-header {
   font-family: 'Geologica', sans-serif;
   font-weight: 600;
-  font-size: 12rem; /* Large font size */
+  font-size: 12rem;
   color: #000;
-  margin-bottom: -20px; /* Slightly reduce space between header and subheader */
-  margin-top: 80px; /* Move the header slightly down */
+  margin-bottom: -20px;
+  margin-top: 10px;
 }
 
 /* Subheader Styling */
@@ -36,7 +38,7 @@
   font-size: 2rem;
   color: #333;
   letter-spacing: 1px;
-  margin-top: -10px; /* Move the subheader slightly up */
+  margin-top: -10px;
 }
 
 .square-bullet {
@@ -45,20 +47,20 @@
   height: 10px;
   background-color: #000;
   margin: 0 10px;
-  vertical-align: middle; /* Align the square in the middle */
+  vertical-align: middle;
 }
 
 /* Navbar Styling */
 .navbar {
-  background-color: #ffe74c !important; /* Match the yellow of the page */
+  background-color: #ffe74c !important;
   padding: 1rem;
+  height: 45px;
 }
 
 .navbar-brand,
 .navbar-nav .nav-link,
 .navbar-toggler-icon,
-.badge,
-#themeToggle i {
+.badge {
   color: #000; /* Black text and icons for light mode */
 }
 
@@ -73,22 +75,22 @@
 }
 
 .navbar .dropdown-menu .dropdown-item:hover {
-  background-color: #ffd700 !important; /* Slightly darker yellow on hover */
+  background-color: #ffd700 !important; 
   color: #000 !important;
 }
 
 /* Align buttons to meet in the middle */
 .left-section .btn {
-  margin-right: 150px; /* Keep the Create button in its correct position */
+  margin-right: 150px;
   border-radius: 0;
   width: 200px;
-  height: 40px;
+  
   font-size: 1.2rem;
   font-weight: bold;
 }
 
 .right-section .btn {
-  margin-left: 150px; /* Keep the Login button in its correct position */
+  margin-left: 150px;
   border-radius: 0;
   width: 200px;
   height: 40px;
@@ -117,24 +119,10 @@
   background-color: #ffd700;
 }
 
-/* Theme Toggle Button */
-#themeToggle {
-  background: none;
-  border: none; /* Remove border */
-}
-
-#themeToggle:hover {
-  background-color: transparent;
-}
-
-#themeToggle i:hover {
-  color: #333; /* Slightly darker black on hover */
-}
-
 /* General Fade-In Animation */
 .fade-in {
-  opacity: 0; /* Start fully transparent */
-  animation: fadeIn 2s ease-in-out forwards; /* Apply fade-in animation */
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
 }
 
 /* Keyframes for Fade-In */
@@ -147,20 +135,86 @@
   }
 }
 
+/* Keyframes for Drop Fade Effect */
+@keyframes dropFade {
+  0% {
+    opacity: 0; /* Fully transparent */
+    transform: translateY(-20px); /* Move up slightly */
+  }
+  100% {
+    opacity: 1; /* Fully visible */
+    transform: translateY(0); /* Return to original position */
+  }
+}
 
+/* Apply the Drop Fade Animation */
+.fade-in-drop {
+  display: inline-block; /* Ensure the span behaves like a block for animations */
+  opacity: 0; /* Start fully transparent */
+  animation: dropFade 2s ease-in-out forwards; /* Apply animation */
+}
 
+/* Info Box Styling */
+.info-box {
+  background-color: #fff;
+  border: 8px solid #A9C7FF; /* Pastel blue border */
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
 
+.info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
 
+/* Image Styling */
+.info-image {
+  max-width: 100%;
+  height: 150px; /* Fixed height for consistent sizing */
+  object-fit: cover; /* Ensures the image fits within the space */
+  border-radius: 8px;
+}
 
+/* Info Title */
+.info-title {
+  font-family: 'Geologica', sans-serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: #4C4C47;
+  margin: 15px 0;
+}
 
+/* Info Description */
+.info-description {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  color: #63595C;
+  margin-bottom: 15px;
+}
 
+/* Learn More Button */
+.btn-learn-more {
+  background-color: #ffe74c;
+  color: #000;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-left: 0;
+  position: relative;
+  left: -10px; 
+}
 
-
-
-
-
-
-
-
-
-  
+.btn-learn-more:hover {
+  background-color: #ffd700;
+  transform: scale(1.05);
+}
