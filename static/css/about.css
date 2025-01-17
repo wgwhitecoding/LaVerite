@@ -1,110 +1,207 @@
-/* Scoped Styles for About Page */
-.about-page {
-    font-family: 'Poppins', sans-serif;
-    text-align: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #ffffff, #f7f7f7);
+/* General Split Layout */
+.split-page {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.left-section, .right-section {
+  height: 50%;
+  width: 100%;
+  text-align: center;
+}
+
+/* Background Colors */
+.left-section {
+  background-color: #ffe74c; /* Yellow background for light mode */
+}
+
+.right-section {
+  background-color: #f7caca; /* Pink background for light mode */
+}
+
+/* General Fade-In Animation for Content */
+.fade-in {
+  opacity: 0; /* Start fully transparent */
+  animation: fadeInText 2s ease-in-out forwards; /* Apply fade-in animation */
+}
+
+/* Keyframes for Fade-In */
+@keyframes fadeInText {
+  from {
+    opacity: 0;
   }
-  
-  /* Hero Section */
-  .about-page .hero {
-    background: url('') no-repeat center center/cover;
-    color: white;
-    padding: 100px 20px;
-    border-radius: 20px;
-    margin-bottom: 50px;
-    animation: fadeIn 2s ease-out;
+  to {
+    opacity: 1;
   }
-  
-  .about-page .hero-heading {
-    font-size: 3rem;
-    margin-bottom: 20px;
-    text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
-  }
-  
-  .about-page .hero-heading span {
-    color: #ff6b6b;
-  }
-  
-  .about-page .hero-description {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-    line-height: 1.6;
-  }
-  
-  .about-page .hero-button {
-    background-color: #ff6b6b;
-    color: white;
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 30px;
-    text-decoration: none;
-    transition: all 0.3s ease;
-  }
-  
-  .about-page .hero-button:hover {
-    background-color: #ff3f3f;
-    transform: scale(1.1);
-  }
-  
-  /* Features Section */
-  .about-page .features-section {
-    margin: 50px 0;
-  }
-  
-  .about-page .features-section h2 {
-    font-size: 2.5rem;
-    margin-bottom: 30px;
-    color: #333;
-  }
-  
-  .about-page .features {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: 30px;
-  }
-  
-  .about-page .feature {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-  }
-  
-  .about-page .feature:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-  }
-  
-  .about-page .icon {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    color: #ff6b6b;
-  }
-  
-  .about-page .feature h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .about-page .feature p {
-    font-size: 1rem;
-    color: #666;
-  }
-  
-  /* Animations */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+}
+
+/* Header Styling */
+.lav-header {
+  font-family: 'Geologica', sans-serif;
+  font-weight: 600;
+  font-size: 12rem; /* Large font size */
+  color: #000;
+  margin-bottom: -20px; /* Slightly reduce space between header and subheader */
+  margin-top: 80px; /* Move the header slightly down */
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.5s; /* Header fades in with delay */
+}
+
+/* Subheader Styling */
+.lav-subheader {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: #333;
+  letter-spacing: 1px;
+  margin-top: -10px; /* Move the subheader slightly up */
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.7s; /* Subheader fades in slightly after the header */
+}
+
+.square-bullet {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  background-color: #000;
+  margin: 0 10px;
+  vertical-align: middle; /* Align the square in the middle */
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 0.7s; /* Bullets fade in with subheader */
+}
+
+/* Navbar Styling */
+.navbar {
+  background-color: #ffe74c !important; /* Match the yellow of the page */
+  padding: 1rem;
+}
+
+.navbar-brand,
+.navbar-nav .nav-link,
+.navbar-toggler-icon,
+.badge,
+#themeToggle i {
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+}
+
+.navbar-brand {
+  animation-delay: 0.2s; /* Brand text fades in first */
+}
+
+.navbar-nav .nav-link:nth-child(1) {
+  animation-delay: 0.4s; /* First link fades in */
+}
+
+.navbar-nav .nav-link:nth-child(2) {
+  animation-delay: 0.6s; /* Second link fades in */
+}
+
+.navbar-nav .nav-link:nth-child(3), .navbar-toggler-icon {
+  animation-delay: 0.8s; /* Third link and menu icon fade in */
+}
+
+.badge {
+  animation-delay: 1s; /* Cart badge fades in last */
+}
+
+#themeToggle i {
+  animation-delay: 1.2s; /* Theme toggle icon fades in */
+  color: #000; /* Black icon for light mode */
+}
+
+/* Dropdown Menu */
+.navbar .dropdown-menu {
+  background-color: #ffe74c; /* Yellow dropdown background */
+  border: none;
+}
+
+.navbar .dropdown-menu .dropdown-item {
+  color: #000 !important; /* Black text for dropdown items */
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+  background-color: #ffd700 !important; /* Slightly darker yellow on hover */
+  color: #000 !important;
+}
+
+/* Align buttons to meet in the middle */
+.left-section .btn {
+  margin-right: 150px; /* Keep the Create button in its correct position */
+  border-radius: 0;
+  width: 200px;
+  height: 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 1.5s; /* Left button fades in last */
+}
+
+.right-section .btn {
+  margin-left: 150px; /* Keep the Login button in its correct position */
+  border-radius: 0;
+  width: 200px;
+  height: 40px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  opacity: 0; /* Start transparent */
+  animation: fadeInText 2s ease-in-out forwards;
+  animation-delay: 1.5s; /* Right button fades in last */
+}
+
+/* Button Colors */
+.btn-black-yellow {
+  background-color: #000;
+  color: #ffe74c;
+  text-align: center;
+}
+
+.btn-black-yellow:hover {
+  background-color: #333;
+}
+
+.btn-yellow-black {
+  background-color: #ffe74c;
+  color: #000;
+  text-align: center;
+}
+
+.btn-yellow-black:hover {
+  background-color: #ffd700;
+}
+
+/* Theme Toggle Button */
+#themeToggle {
+  background: none;
+  border: none; /* Remove border */
+}
+
+#themeToggle:hover {
+  background-color: transparent;
+}
+
+#themeToggle i:hover {
+  color: #333; /* Slightly darker black on hover */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   

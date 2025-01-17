@@ -294,100 +294,7 @@ main#mainContent {
 .adjustment-group input[type="range"] {
   width: 100%;
 }
-/* Base dark theme styles */
-body.dark-theme {
-  background-color: #121212 !important; /* Dark background for the entire body */
-  color: #e0e0e0 !important; /* Light text for readability */
-}
 
-/* Navbar styling in dark mode */
-body.dark-theme .navbar {
-  background-color: #1f1f1f !important; /* Dark navbar background */
-  border-bottom: 1px solid #333 !important;
-}
-
-/* Side panels (left and right) */
-body.dark-theme .side-panel, 
-body.dark-theme .right-panel {
-  background-color: #1f1f1f !important; /* Dark panels background */
-  color: #e0e0e0 !important; /* Light text */
-  border-color: #333 !important;
-}
-
-/* Canvas container */
-body.dark-theme .canvas-container {
-  background-color: #d3d3d3 !important; /* Light gray canvas */
-  border-color: #ccc !important; /* Adjust border if necessary */
-}
-
-/* Table styling for dark mode */
-body.dark-theme .table {
-  background-color: #1f1f1f !important; /* Dark table background */
-  color: #e0e0e0 !important; /* Light text color */
-  border-color: #333 !important;
-}
-
-body.dark-theme .table th, 
-body.dark-theme .table td {
-  color: #e0e0e0 !important; /* Ensure table text is light */
-}
-
-/* Button styling */
-body.dark-theme .btn {
-  background-color: #333 !important; /* Dark button background */
-  color: #e0e0e0 !important; /* Light button text */
-}
-
-body.dark-theme .btn:hover {
-  background-color: #444 !important; /* Slightly lighter on hover */
-}
-
-/* Layers section in right panel */
-body.dark-theme .layer-item {
-  background-color: #1f1f1f !important; /* Dark layer item background */
-  color: #e0e0e0 !important; /* Light text */
-}
-
-body.dark-theme .layer-item:hover {
-  background-color: #333 !important; /* Highlight layer item on hover */
-}
-
-/* Transform tools section */
-body.dark-theme .transform-tools .btn {
-  background-color: #333 !important; /* Dark button */
-  color: #e0e0e0 !important; /* Light text */
-}
-
-body.dark-theme .transform-tools .btn.active {
-  background-color: #444 !important; /* Highlight active tool */
-}
-
-/* Real-time adjustment sliders */
-body.dark-theme .adjustments-section label {
-  color: #e0e0e0 !important; /* Light text for labels */
-}
-
-/* Ensure the sun icon remains white */
-body.dark-theme #themeIcon {
-  color: #fff !important;
-}
-/* Default styles */
-/* Default styles */
-.canvas-container {
-  background-color: #ffffff; /* Light mode - white */
-  transition: background-color 0.3s ease;
-}
-
-/* Dark mode styles */
-body.dark-mode .canvas-container {
-  background-color: #d3d3d3 !important; /* Dark mode - light gray */
-}
-
-/* Text colors */
-body.dark-mode {
-  color: #ffffff; /* Global text color for dark mode */
-  background-color: #121212; /* Global background color for dark mode */
-}
 
 
 
@@ -422,5 +329,7 @@ body.dark-mode {
     height: 70vh; /* Adjust canvas height when sidebars are stacked */
   }
 }
+
+  
 
   
