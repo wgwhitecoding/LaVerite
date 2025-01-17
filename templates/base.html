@@ -17,21 +17,21 @@
   <link rel="stylesheet" href="{% static 'css/styles.css' %}">
   <link rel="stylesheet" href="{% static 'css/about.css' %}">
   <!-- CSS for Dark Mode -->
-<link rel="stylesheet" href="{% static 'css/dark-mode.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dark-mode.css' %}">
 </head>
 <body>
   <!-- Navbar at top -->
-  <nav class="navbar navbar-expand-lg px-3">
-    <a class="navbar-brand" href="/">LaVérité</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+  <nav class="navbar navbar-expand-lg px-3" style="background-color: #ffe74c;">
+    <a class="navbar-brand fade-in" href="/" style="animation-delay: 0.2s;">LaVérité</a>
+    <button class="navbar-toggler fade-in" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="animation-delay: 0.4s;">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div id="navbarNav" class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link">About</a></li>
-        <li class="nav-item"><a href="{% url 'home' %}" class="nav-link">Create</a></li>
+        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link fade-in" style="animation-delay: 0.6s;">About</a></li>
+        <li class="nav-item"><a href="{% url 'home' %}" class="nav-link fade-in" style="animation-delay: 0.8s;">Create</a></li>
         {% if user.is_authenticated %}
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown fade-in" style="animation-delay: 1s;">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
               {{ user.username }}
             </a>
@@ -41,10 +41,10 @@
             </ul>
           </li>
         {% else %}
-          <li class="nav-item"><a href="{% url 'account_login' %}" class="nav-link">Login</a></li>
+          <li class="nav-item"><a href="{% url 'account_login' %}" class="nav-link fade-in" style="animation-delay: 1.2s;">Login</a></li>
         {% endif %}
         <li class="nav-item">
-          <a href="{% url 'view_cart' %}" class="nav-link">
+          <a href="{% url 'view_cart' %}" class="nav-link fade-in" style="animation-delay: 1.4s;">
             <i class="fas fa-shopping-cart"></i>
             {% if cart_item_count %}
               <span class="badge bg-danger">{{ cart_item_count }}</span>
@@ -52,7 +52,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <button id="themeToggle" class="btn btn-outline-light">
+          <button id="themeToggle" class="btn btn-outline-light fade-in" style="animation-delay: 1.6s;">
             <i id="themeIcon" class="fas fa-sun"></i>
           </button>
         </li>
@@ -71,6 +71,7 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
+
 
 
 

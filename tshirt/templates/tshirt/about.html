@@ -2,27 +2,32 @@
 {% load static %}
 {% block content %}
 
-
-
 <div class="split-page container-fluid vh-100 d-flex flex-column">
   <!-- Top Section -->
-  <div class="left-section d-flex flex-column justify-content-between align-items-center flex-grow-1" >
+  <div class="left-section d-flex flex-column justify-content-between align-items-center flex-grow-1">
     <div class="header-container">
-      <h1 class="lav-header">LaVérité</h1>
+      <h1 class="lav-header fade-in" style="animation-delay: 1.5s;">LaVérité</h1>
       <h3 class="lav-subheader">
-        Creative <span class="square-bullet"></span> Sustainable <span class="square-bullet"></span> Ethical <span class="square-bullet"></span>Apparel
-      </h3>
+        <span class="fade-in" style="animation-delay: 4s;">Creative</span>
+        <span class="square-bullet fade-in" style="animation-delay: 6s;"></span>
+        <span class="fade-in" style="animation-delay: 4.5s;">Sustainable</span>
+        <span class="square-bullet fade-in" style="animation-delay: 6.5s;"></span>
+        <span class="fade-in" style="animation-delay: 5s;">Ethical</span>
+        <span class="square-bullet fade-in" style="animation-delay: 7s;"></span>
+        <span class="fade-in" style="animation-delay: 5.5s;">Apparel</span>
+      </h3>      
     </div>
-    <a href="{% url 'home' %}" class="btn btn-black-yellow">Create</a>
+    <a href="{% url 'home' %}" class="btn btn-black-yellow fade-in" style="animation-delay: 2s;">Create</a>
   </div>
 
   <!-- Bottom Section -->
   <div class="right-section d-flex flex-column justify-content-start align-items-center flex-grow-1">
-    <a href="{% url 'account_login' %}" class="btn btn-yellow-black">Login</a>
+    <a href="{% url 'account_login' %}" class="btn btn-yellow-black fade-in" style="animation-delay: 2.2s;">Login</a>
   </div>
 </div>
 
 {% endblock %}
+
 
 
 
