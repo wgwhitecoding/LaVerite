@@ -316,8 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ============= 6) Decal Upload and Placement =============
   let decalsArray = [];
   let textArray = [];
-  let selectedObject = null; // Currently selected object for editing
-  let transformControls = null; // TransformControls instance
+  let selectedObject = null; 
+  let transformControls = null;
   
   /**
    * Initializes TransformControls for editing decals and texts.
